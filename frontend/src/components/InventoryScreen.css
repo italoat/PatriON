@@ -22,7 +22,7 @@
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* Garante que a borda arredondada seja aplicada à tabela */
+    overflow: hidden;
 }
 
 .inventory-table {
@@ -51,7 +51,7 @@
 }
 
 .inventory-table tbody tr:hover {
-    background-color: #e6f0fa; /* Um azul claro para o hover */
+    background-color: #e6f0fa;
 }
 
 .inventory-table tbody tr:last-child {
@@ -64,18 +64,18 @@
     padding: 3rem;
 }
 
-/* --- Estilos do Modal --- */
+/* --- ESTILOS DO MODAL (A PARTE MAIS IMPORTANTE) --- */
 .modal-overlay {
-    position: fixed;
+    position: fixed; /* Fica fixo na tela */
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.75); /* Fundo preto semi-transparente */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 1000; /* Garante que fique sobre todo o conteúdo */
 }
 
 .modal-content {
@@ -106,41 +106,35 @@
     gap: 2rem;
 }
 
-.modal-image {
-    flex: 1;
+.modal-image { flex: 1; }
+.modal-image img { width: 100%; border-radius: 6px; background-color: #f0f0f0; }
+.modal-details { flex: 2; }
+.modal-details h2 { margin-top: 0; color: #001f5c; border-bottom: 2px solid #e6f0fa; padding-bottom: 0.5rem; }
+.modal-details ul { list-style: none; padding: 0; }
+.modal-details li { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+.modal-details li:last-child { border-bottom: none; }
+.modal-details strong { color: #333; }
+
+.modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
 }
 
-.modal-image img {
-    width: 100%;
-    border-radius: 6px;
-    background-color: #f0f0f0;
+.modal-delete-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.modal-details {
-    flex: 2;
-}
-
-.modal-details h2 {
-    margin-top: 0;
-    color: #001f5c;
-    border-bottom: 2px solid #e6f0fa;
-    padding-bottom: 0.5rem;
-}
-
-.modal-details ul {
-    list-style: none;
-    padding: 0;
-}
-
-.modal-details li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.modal-details li:last-child {
-    border-bottom: none;
-}
-
-.modal-details strong {
-    color: #333;
+.modal-delete-button:hover {
+    background-color: #d32f2f;
 }

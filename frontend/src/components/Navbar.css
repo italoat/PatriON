@@ -58,3 +58,39 @@
     color: white;
     border-bottom: 3px solid #3c77e7; /* Borda azul para o link ativo */
 }
+
+.nav-links-container {
+    display: flex;
+    justify-content: space-between; /* Alinha os links à esquerda e a seção do usuário à direita */
+    align-items: center;
+    width: 100%;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    text-transform: capitalize; /* Deixa a primeira letra maiúscula */
+}
+
+/* Estilos existentes */
+.logout-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}

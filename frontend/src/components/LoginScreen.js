@@ -25,7 +25,7 @@ const LoginScreen = () => {
                 email,
                 password,
             });
-
+            localStorage.setItem('authToken', response.data.token);
             console.log('Login bem-sucedido:', response.data);
             
             // 3. NAVEGUE PARA A HOME APÓS O SUCESSO

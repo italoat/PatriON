@@ -7,6 +7,7 @@ import LoginScreen from './components/LoginScreen';
 import HomeScreen from './components/HomeScreen';
 import DashboardScreen from './components/DashboardScreen';
 import InventoryScreen from './components/InventoryScreen'; 
+import RegistrationScreen from './components/RegistrationScreen';
 
 
 function App() {
@@ -24,6 +25,9 @@ function App() {
 
           {/* Rota para a página de Inventário */}
         <Route path="/inventario" element={<InventoryScreen />} />
+          {/* Rota para a página de Cadastro */}
+        <Route path="/cadastro" element={<RegistrationScreen />} />
+
 
         {/* Adicione outras rotas aqui conforme for criando as telas */}
         {/* Exemplo: <Route path="/dashboard" element={<DashboardScreen />} /> */}
