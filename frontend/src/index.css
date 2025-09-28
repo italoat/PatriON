@@ -1,0 +1,43 @@
+/* frontend/src/index.css */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* --- NOVOS ESTILOS PARA A IMAGEM DE FUNDO --- */
+  background-color: #e6f0fa; /* Uma cor de fundo sólida para quando a imagem não carregar ou base */
+  background-image: url('./assets/background-network.png'); /* Caminho para sua imagem */
+  background-repeat: no-repeat;
+  background-size: cover; /* Cobre toda a área sem repetir */
+  background-position: center center; /* Centraliza a imagem */
+  position: relative; /* Necessário para a pseudo-classe ::before */
+  min-height: 100vh; /* Garante que o corpo ocupe toda a altura da viewport */
+}
+
+/* Pseudo-elemento para criar a sobreposição transparente */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* Branco com 50% de transparência */
+  z-index: -1; /* Coloca a sobreposição atrás do conteúdo */
+}
+
+/* Garante que o conteúdo do React fique acima do fundo */
+#root {
+  position: relative;
+  z-index: 0; /* Certifica que o conteúdo do #root esteja acima do ::before */
+  min-height: 100vh; /* Ocupa a altura total, permitindo que o fundo seja visto */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

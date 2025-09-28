@@ -1,0 +1,15 @@
+/* frontend/src/components/HomeScreen.css */
+.home-container {
+    /* background-color: #f0f4ff; REMOVER OU COMENTAR */ /* Fundo claro para a área de conteúdo */
+    min-height: 100vh;
+}
+
+.content {
+    padding: 40px;
+    text-align: left;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content h1 {
+    color: #001f5c;
+}
