@@ -1,17 +1,20 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO CORRIGIDA E ROBUSTA)
+// frontend/src/components/InventoryScreen.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
 import Navbar from './Navbar';
 import './InventoryScreen.css';
 
+// Configuração inicial para o Modal, importante para acessibilidade
 Modal.setAppElement('#root');
 
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null); // Guarda o item clicado
 
+    // Busca os dados do inventário quando o componente é montado
     useEffect(() => {
         axios.get('http://localhost:5000/api/inventory')
             .then(response => {
@@ -24,31 +27,39 @@ const InventoryScreen = () => {
             });
     }, []);
 
-    const openModal = (item) => setSelectedItem(item);
-    const closeModal = () => setSelectedItem(null);
+    // Funções para controlar o modal
+    const openModal = (item) => {
+        setSelectedItem(item);
+    };
 
-    // Envolvemos a função em useCallback para otimização e boas práticas
+    const closeModal = () => {
+        setSelectedItem(null);
+    };
+
+    // Função para apagar o item
     const handleDelete = useCallback((itemToDelete) => {
+        // Pede confirmação ao usuário
         if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete['Descricao do Bem']}"?`)) {
             return;
         }
 
+        // Codifica o ID do patrimônio para ser seguro na URL
         const patrimonioId = encodeURIComponent(itemToDelete['N de Patrimonio']);
 
         axios.delete(`http://localhost:5000/api/inventory/${patrimonioId}`)
             .then(response => {
-                // Atualiza o estado local para remover o item da tabela instantaneamente
+                // Atualiza a lista na tela sem precisar recarregar a página
                 setInventory(currentInventory => 
                     currentInventory.filter(item => item['N de Patrimonio'] !== itemToDelete['N de Patrimonio'])
                 );
                 alert('Item apagado com sucesso!');
-                closeModal(); // Fecha o modal após o sucesso
+                closeModal(); // Fecha o modal
             })
             .catch(error => {
                 console.error("Erro ao apagar o item:", error.response || error);
                 alert('Falha ao apagar o item. Verifique o console para mais detalhes.');
             });
-    }, []); // O array de dependências vazio significa que a função não será recriada desnecessariamente
+    }, []); // useCallback para otimização
 
     if (loading) {
         return <div><Navbar /><p className="loading-message">Carregando inventário...</p></div>;
@@ -68,7 +79,6 @@ const InventoryScreen = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* CORREÇÃO AQUI: Usamos o 'index' para criar uma chave garantidamente única */}
                             {inventory.map((item, index) => (
                                 <tr key={`${item['N de Patrimonio']}-${index}`} onClick={() => openModal(item)}>
                                     <td>{item['N de Patrimonio']}</td>
@@ -80,13 +90,22 @@ const InventoryScreen = () => {
                 </div>
             </main>
 
-            <Modal isOpen={!!selectedItem} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
+            {/* O Modal/Popup */}
+            <Modal
+                isOpen={!!selectedItem}
+                onRequestClose={closeModal}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
                 {selectedItem && (
                     <>
                         <button onClick={closeModal} className="modal-close-button">&times;</button>
                         <div className="modal-body">
                             <div className="modal-image">
-                                <img src={`https://via.placeholder.com/300x250.png?text=Equipamento`} alt={selectedItem['Descricao do Bem']} />
+                                <img 
+                                    src={selectedItem.Foto || `https://via.placeholder.com/300x250.png?text=Sem+Imagem`} 
+                                    alt={selectedItem['Descricao do Bem']} 
+                                />
                             </div>
                             <div className="modal-details">
                                 <h2>Detalhes do Item</h2>
