@@ -1,111 +1,20 @@
-/* frontend/src/components/InventoryScreen.css */
-
-.inventory-page {
-    min-height: 100vh;
-}
-
-.inventory-content {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.inventory-title {
-    text-align: center;
-    color: #001f5c;
-    margin-bottom: 2rem;
-    font-size: 2.5rem;
-}
-
-.table-container {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.inventory-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.inventory-table thead {
-    background-color: #001f5c;
-    color: white;
-}
-
-.inventory-table th, .inventory-table td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-}
-
-.inventory-table tbody tr {
-    border-bottom: 1px solid #e0e0e0;
-    transition: background-color 0.2s ease-in-out;
-    cursor: pointer;
-}
-
-.inventory-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.inventory-table tbody tr:hover {
-    background-color: #e6f0fa;
-}
-
-.inventory-table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.loading-message {
-    text-align: center;
-    font-size: 1.5rem;
-    padding: 3rem;
-}
-
-/* --- ESTILOS DO MODAL (A PARTE MAIS IMPORTANTE) --- */
-.modal-overlay {
-    position: fixed; /* Fica fixo na tela */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.75); /* Fundo preto semi-transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Garante que fique sobre todo o conteúdo */
-}
-
-.modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    width: 90%;
-    max-width: 800px;
-    position: relative;
-    outline: none;
-}
-
-.modal-close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    border: none;
-    background: transparent;
-    font-size: 2.5rem;
-    color: #aaa;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.modal-body {
-    display: flex;
-    gap: 2rem;
-}
-
+/* frontend/src/components/InventoryScreen.css (VERSÃO SEM ESTILOS DE EDIÇÃO) */
+.inventory-page { min-height: 100vh; }
+.inventory-content { padding: 2rem; max-width: 1400px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.inventory-title { text-align: center; color: #001f5c; margin-bottom: 2rem; font-size: 2.5rem; }
+.table-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden; }
+.inventory-table { width: 100%; border-collapse: collapse; }
+.inventory-table thead { background-color: #001f5c; color: white; }
+.inventory-table th, .inventory-table td { padding: 1rem 1.5rem; text-align: left; }
+.inventory-table tbody tr { border-bottom: 1px solid #e0e0e0; transition: background-color 0.2s ease-in-out; cursor: pointer; }
+.inventory-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
+.inventory-table tbody tr:hover { background-color: #e6f0fa; }
+.inventory-table tbody tr:last-child { border-bottom: none; }
+.loading-message { text-align: center; font-size: 1.5rem; padding: 3rem; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 800px; position: relative; outline: none; }
+.modal-close-button { position: absolute; top: 10px; right: 15px; border: none; background: transparent; font-size: 2.5rem; color: #aaa; cursor: pointer; line-height: 1; }
+.modal-body { display: flex; gap: 2rem; }
 .modal-image { flex: 1; }
 .modal-image img { width: 100%; border-radius: 6px; background-color: #f0f0f0; }
 .modal-details { flex: 2; }
@@ -114,105 +23,6 @@
 .modal-details li { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
 .modal-details li:last-child { border-bottom: none; }
 .modal-details strong { color: #333; }
-
-.modal-footer {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-delete-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.modal-delete-button:hover {
-    background-color: #d32f2f;
-}
-
-/* Estilos para os campos de edição dentro do modal */
-.modal-details label {
-    display: block;
-    margin-top: 1rem;
-    margin-bottom: 0.25rem;
-    font-weight: bold;
-    color: #555;
-}
-
-.modal-details .modal-input,
-.modal-details input,
-.modal-details select,
-.modal-details textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    box-sizing: border-box; /* Garante que o padding não aumente a largura */
-}
-
-.modal-details textarea.modal-input {
-    min-height: 80px;
-    resize: vertical;
-}
-
-
-/* Botões de Ação do Modal */
-.modal-footer {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end; /* Alinha os botões à direita */
-    gap: 0.5rem; /* Espaço entre os botões */
-}
-
-.modal-edit-button {
-    background-color: #2196F3; /* Azul */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.modal-edit-button:hover { background-color: #1976D2; }
-
-
-.modal-save-button {
-    background-color: #4CAF50; /* Verde */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.modal-save-button:hover { background-color: #388E3C; }
-
-
-.modal-delete-button {
-    background-color: #f44336; /* Vermelho */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
+.modal-footer { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; }
+.modal-delete-button { background-color: #f44336; color: white; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
 .modal-delete-button:hover { background-color: #d32f2f; }
