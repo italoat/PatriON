@@ -138,3 +138,81 @@
 .modal-delete-button:hover {
     background-color: #d32f2f;
 }
+
+/* Estilos para os campos de edição dentro do modal */
+.modal-details label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.modal-details .modal-input,
+.modal-details input,
+.modal-details select,
+.modal-details textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Garante que o padding não aumente a largura */
+}
+
+.modal-details textarea.modal-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+
+/* Botões de Ação do Modal */
+.modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end; /* Alinha os botões à direita */
+    gap: 0.5rem; /* Espaço entre os botões */
+}
+
+.modal-edit-button {
+    background-color: #2196F3; /* Azul */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.modal-edit-button:hover { background-color: #1976D2; }
+
+
+.modal-save-button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.modal-save-button:hover { background-color: #388E3C; }
+
+
+.modal-delete-button {
+    background-color: #f44336; /* Vermelho */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.modal-delete-button:hover { background-color: #d32f2f; }

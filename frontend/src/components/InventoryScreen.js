@@ -6,16 +6,17 @@ import Modal from 'react-modal';
 import Navbar from './Navbar';
 import './InventoryScreen.css';
 
-// Configuração inicial para o Modal, importante para acessibilidade
 Modal.setAppElement('#root');
 
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedItem, setSelectedItem] = useState(null); // Guarda o item clicado
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false); // Estado para controlar o modo de edição
+    const [editableData, setEditableData] = useState(null); // Estado para os dados do formulário de edição
 
-    // Busca os dados do inventário quando o componente é montado
     useEffect(() => {
+        setLoading(true);
         axios.get('http://localhost:5000/api/inventory')
             .then(response => {
                 setInventory(response.data);
@@ -27,39 +28,52 @@ const InventoryScreen = () => {
             });
     }, []);
 
-    // Funções para controlar o modal
     const openModal = (item) => {
         setSelectedItem(item);
+        setEditableData({ ...item }); // Preenche os dados para edição
+        setIsEditMode(false); // Sempre começa no modo de visualização
     };
 
     const closeModal = () => {
         setSelectedItem(null);
+        setEditableData(null);
+        setIsEditMode(false);
     };
 
-    // Função para apagar o item
-    const handleDelete = useCallback((itemToDelete) => {
-        // Pede confirmação ao usuário
-        if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete['Descricao do Bem']}"?`)) {
-            return;
-        }
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditableData(prev => ({ ...prev, [name]: value }));
+    };
 
-        // Codifica o ID do patrimônio para ser seguro na URL
-        const patrimonioId = encodeURIComponent(itemToDelete['N de Patrimonio']);
+    const handleUpdate = useCallback((e) => {
+        e.preventDefault();
+        const patrimonioId = encodeURIComponent(selectedItem['N de Patrimonio']);
 
-        axios.delete(`http://localhost:5000/api/inventory/${patrimonioId}`)
+        axios.put(`http://localhost:5000/api/inventory/${patrimonioId}`, editableData)
             .then(response => {
-                // Atualiza a lista na tela sem precisar recarregar a página
-                setInventory(currentInventory => 
-                    currentInventory.filter(item => item['N de Patrimonio'] !== itemToDelete['N de Patrimonio'])
-                );
-                alert('Item apagado com sucesso!');
-                closeModal(); // Fecha o modal
+                setInventory(prev => prev.map(item => 
+                    item['N de Patrimonio'] === selectedItem['N de Patrimonio'] ? { ...item, ...editableData } : item
+                ));
+                alert('Item atualizado com sucesso!');
+                closeModal();
             })
             .catch(error => {
-                console.error("Erro ao apagar o item:", error.response || error);
-                alert('Falha ao apagar o item. Verifique o console para mais detalhes.');
+                console.error("Erro ao atualizar o item:", error);
+                alert('Falha ao salvar as alterações.');
             });
-    }, []); // useCallback para otimização
+    }, [editableData, selectedItem]);
+
+    const handleDelete = useCallback((itemToDelete) => {
+        if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete['Descricao do Bem']}"?`)) return;
+        const patrimonioId = encodeURIComponent(itemToDelete['N de Patrimonio']);
+        axios.delete(`http://localhost:5000/api/inventory/${patrimonioId}`)
+            .then(() => {
+                setInventory(prev => prev.filter(item => item['N de Patrimonio'] !== itemToDelete['N de Patrimonio']));
+                alert('Item apagado com sucesso!');
+                closeModal();
+            })
+            .catch(error => alert('Falha ao apagar o item.'));
+    }, []);
 
     if (loading) {
         return <div><Navbar /><p className="loading-message">Carregando inventário...</p></div>;
@@ -90,42 +104,56 @@ const InventoryScreen = () => {
                 </div>
             </main>
 
-            {/* O Modal/Popup */}
-            <Modal
-                isOpen={!!selectedItem}
-                onRequestClose={closeModal}
-                className="modal-content"
-                overlayClassName="modal-overlay"
-            >
+            <Modal isOpen={!!selectedItem} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
                 {selectedItem && (
-                    <>
-                        <button onClick={closeModal} className="modal-close-button">&times;</button>
+                    <form onSubmit={handleUpdate}>
+                        <button type="button" onClick={closeModal} className="modal-close-button">&times;</button>
                         <div className="modal-body">
                             <div className="modal-image">
-                                <img 
-                                    src={selectedItem.Foto || `https://via.placeholder.com/300x250.png?text=Sem+Imagem`} 
-                                    alt={selectedItem['Descricao do Bem']} 
-                                />
+                                <img src={selectedItem.Foto || `https://via.placeholder.com/300x250.png?text=Sem+Imagem`} alt={selectedItem['Descricao do Bem']} />
                             </div>
                             <div className="modal-details">
-                                <h2>Detalhes do Item</h2>
-                                <ul>
-                                    <li><strong>Nº Patrimônio:</strong> {selectedItem['N de Patrimonio']}</li>
-                                    <li><strong>Patrimônio Anterior:</strong> {selectedItem['N Patrimonio Anterior']}</li>
-                                    <li><strong>Descrição:</strong> {selectedItem['Descricao do Bem']}</li>
-                                    <li><strong>Classificação:</strong> {selectedItem.CLASSIFICACAO}</li>
-                                    <li><strong>Setor:</strong> {selectedItem.Setor}</li>
-                                    <li><strong>Outra Identificação:</strong> {selectedItem['Outra Identificacao']}</li>
-                                    <li><strong>Observação:</strong> {selectedItem.Observacao}</li>
-                                </ul>
+                                <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
+                                {isEditMode ? (
+                                    <>
+                                        <label>Descrição:</label>
+                                        <input className="modal-input" type="text" name="Descricao do Bem" value={editableData['Descricao do Bem']} onChange={handleEditChange} />
+                                        <label>Classificação:</label>
+                                        <select className="modal-input" name="CLASSIFICACAO" value={editableData.CLASSIFICACAO} onChange={handleEditChange}>
+                                            <option value="BOM">Bom</option>
+                                            <option value="OTIMO">Ótimo</option>
+                                            <option value="INSERVIVEL">Inservível</option>
+                                            <option value="OCIOSO">Ocioso</option>
+                                        </select>
+                                        <label>Observação:</label>
+                                        <textarea className="modal-input" name="Observacao" value={editableData.Observacao} onChange={handleEditChange}></textarea>
+                                    </>
+                                ) : (
+                                    <ul>
+                                        <li><strong>Nº Patrimônio:</strong> {selectedItem['N de Patrimonio']}</li>
+                                        <li><strong>Patrimônio Anterior:</strong> {selectedItem['N Patrimonio Anterior']}</li>
+                                        <li><strong>Descrição:</strong> {selectedItem['Descricao do Bem']}</li>
+                                        <li><strong>Classificação:</strong> {selectedItem.CLASSIFICACAO}</li>
+                                        <li><strong>Setor:</strong> {selectedItem.Setor}</li>
+                                        <li><strong>Outra Identificação:</strong> {selectedItem['Outra Identificacao']}</li>
+                                        <li><strong>Observação:</strong> {selectedItem.Observacao}</li>
+                                    </ul>
+                                )}
                             </div>
                         </div>
+                        
+                        {/* ========================================================================= */}
+                        {/* SEÇÃO DOS BOTÕES: Esta parte é responsável por mostrar "Editar" ou "Salvar" */}
+                        {/* ========================================================================= */}
                         <div className="modal-footer">
-                            <button onClick={() => handleDelete(selectedItem)} className="modal-delete-button">
-                                Apagar Item
-                            </button>
+                            {isEditMode ? (
+                                <button type="submit" className="modal-save-button">Salvar Alterações</button>
+                            ) : (
+                                <button type="button" onClick={() => setIsEditMode(true)} className="modal-edit-button">Editar</button>
+                            )}
+                            <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar Item</button>
                         </div>
-                    </>
+                    </form>
                 )}
             </Modal>
         </div>
