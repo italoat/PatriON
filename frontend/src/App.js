@@ -8,7 +8,9 @@ import HomeScreen from './components/HomeScreen';
 import DashboardScreen from './components/DashboardScreen';
 import InventoryScreen from './components/InventoryScreen'; 
 import RegistrationScreen from './components/RegistrationScreen';
-
+import RegisterUserScreen from './components/RegisterUserScreen';
+import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import ResetPasswordScreen from './components/ResetPasswordScreen'; 
 
 function App() {
   return (
@@ -27,7 +29,12 @@ function App() {
         <Route path="/inventario" element={<InventoryScreen />} />
           {/* Rota para a página de Cadastro */}
         <Route path="/cadastro" element={<RegistrationScreen />} />
-
+          {/* 2. ADICIONE A ROTA PARA O REGISTRO DE USUÁRIO */}
+        <Route path="/registrar-usuario" element={<RegisterUserScreen />} />
+          {/* 2. ADICIONE A ROTA PARA "ESQUECI MINHA SENHA" */}
+        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+          {/* 2. ADICIONE A ROTA PARA REDEFINIR A SENHA (com o token) */}
+        <Route path="/reset-password/:token" element={<ResetPasswordScreen />} />
 
         {/* Adicione outras rotas aqui conforme for criando as telas */}
         {/* Exemplo: <Route path="/dashboard" element={<DashboardScreen />} /> */}

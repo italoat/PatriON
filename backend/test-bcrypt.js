@@ -2,9 +2,9 @@
 
 const bcrypt = require('bcryptjs');
 
-const plainPassword = 'password';
+const plainPassword = 'Senha';
 // POR FAVOR, COLE AQUI O HASH QUE VOCÊ GEROU ANTERIORMENTE
-const hash = '$2b$10$bO5MKJcIvYGosds0uKXqye70fyhtDw3zAbEbIypFs3.H6fAau/ybC';
+const hash = '$2b$10$.hR6zNWcSkGNq.UEg/T2keVHPh1IT5fgCSz8RiCewDv4oNQ7LmwMC';
 
 console.log("========================================");
 console.log("Iniciando teste de isolamento do bcrypt...");

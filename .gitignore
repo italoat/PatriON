@@ -1,0 +1,3 @@
+# Ignorar instaladores e arquivos grandes
+*.exe
+*.msi

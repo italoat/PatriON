@@ -2,7 +2,7 @@
 
 const bcrypt = require('bcryptjs');
 
-const password = 'password123'; // A nova senha
+const password = 'Senha'; // A nova senha
 const saltRounds = 10;
 
 console.log("Gerando novo hash para a senha:", password);
