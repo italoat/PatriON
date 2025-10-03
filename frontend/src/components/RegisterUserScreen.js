@@ -27,7 +27,7 @@ const RegisterUserScreen = () => {
         setMessage('');
         setIsError(false);
         
-        axios.post('${process.env.REACT_APP_API_URL}/api/users', formData)
+        axios.post('https://patrion.onrender.com/api/users', formData)
             .then(response => {
                 setIsError(false);
                 setMessage(response.data.message);

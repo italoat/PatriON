@@ -50,14 +50,14 @@ const DashboardScreen = () => {
     const valueChartRef = useRef();
 
     useEffect(() => {
-        axios.get('${process.env.REACT_APP_API_URL}/api/sectors')
+        axios.get('https://patrion.onrender.com/api/sectors')
             .then(response => setSectors(response.data))
             .catch(error => console.error("Erro ao buscar setores:", error));
     }, []);
 
     useEffect(() => {
         setLoading(true);
-        const url = `${process.env.REACT_APP_API_URL}/api/inventory?setorId=${selectedSectorId}`;
+        const url = `https://patrion.onrender.com/api/inventory?setorId=${selectedSectorId}`;
         axios.get(url)
             .then(response => { setInventoryData(response.data); })
             .catch(error => { console.error("Erro ao buscar dados do inventário:", error); })

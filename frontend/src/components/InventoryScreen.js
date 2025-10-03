@@ -45,12 +45,12 @@ const InventoryScreen = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('${process.env.REACT_APP_API_URL}/api/sectors').then(res => setAllSectors(res.data));
+        axios.get('https://patrion.onrender.com/api/sectors').then(res => setAllSectors(res.data));
     }, []);
 
     const fetchInventory = useCallback(() => {
         setLoading(true);
-        axios.get('${process.env.REACT_APP_API_URL}/api/inventory')
+        axios.get('https://patrion.onrender.com/api/inventory')
             .then(res => setInventory(res.data))
             .catch(error => console.error("Erro ao buscar inventário:", error))
             .finally(() => setLoading(false));
@@ -97,7 +97,7 @@ const InventoryScreen = () => {
             dataToSubmit.append('foto', newFile);
         }
 
-        axios.put(`${process.env.REACT_APP_API_URL}/api/inventory/${selectedItem._id}`, dataToSubmit)
+        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit)
         .then(response => {
             setInventory(prev => prev.map(item => item._id === selectedItem._id ? response.data.item : item));
             alert('Item atualizado com sucesso!');
@@ -108,7 +108,7 @@ const InventoryScreen = () => {
 
     const handleDelete = useCallback((itemToDelete) => {
         if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete.descricao}"?`)) return;
-        axios.delete(`${process.env.REACT_APP_API_URL}/api/inventory/${itemToDelete._id}`)
+        axios.delete(`https://patrion.onrender.com/api/inventory/${itemToDelete._id}`)
             .then(() => {
                 setInventory(prev => prev.filter(item => item._id !== itemToDelete._id));
                 alert('Item apagado com sucesso!');
@@ -120,7 +120,7 @@ const InventoryScreen = () => {
     // --- Novas Funções para a Busca ---
     const handleSearch = () => {
         if (!searchPatrimonio) return;
-        axios.get(`${process.env.REACT_APP_API_URL}/api/inventory/by-patrimonio/${searchPatrimonio.trim()}`)
+        axios.get(`https://patrion.onrender.com/api/inventory/by-patrimonio/${searchPatrimonio.trim()}`)
             .then(response => {
                 setIsSearchModalOpen(false);
                 setSearchPatrimonio('');

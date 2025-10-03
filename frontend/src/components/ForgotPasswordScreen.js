@@ -15,7 +15,7 @@ const ForgotPasswordScreen = () => {
         setMessage('');
         setIsError(false);
 
-        axios.post('${process.env.REACT_APP_API_URL}/api/forgot-password', { email })
+        axios.post('https://patrion.onrender.com/api/forgot-password', { email })
             .then(response => {
                 setIsError(false);
                 setMessage(response.data.message);
