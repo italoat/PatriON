@@ -1,0 +1,6 @@
+/* frontend/src/components/QrScanner.css */
+.qr-scanner-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+.qr-scanner-modal { background: white; padding: 2rem; border-radius: 8px; text-align: center; }
+#qr-reader { width: 400px; border: 2px solid #eee; border-radius: 8px; overflow: hidden; }
+.qr-close-button { margin-top: 1rem; background-color: #f44336; color: white; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; }
+@media (max-width: 768px) { #qr-reader { width: 80vw; } }

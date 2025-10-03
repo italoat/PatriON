@@ -1,11 +1,14 @@
 // frontend/src/components/RegistrationScreen.js
 
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
 import './RegistrationScreen.css';
 
 const RegistrationScreen = () => {
+    const location = useLocation();
+    
     const initialFormState = {
         numeroPatrimonioAnterior: '',
         numeroPatrimonio: '',
@@ -36,6 +39,14 @@ const RegistrationScreen = () => {
             .catch(error => console.error("Erro ao buscar setores:", error));
     }, []);
 
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const patrimonioFromSearch = searchParams.get('patrimonio');
+        if (patrimonioFromSearch) {
+            setFormData(prevState => ({ ...prevState, numeroPatrimonio: patrimonioFromSearch }));
+        }
+    }, [location]);
+
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         const finalValue = type === 'number' ? parseFloat(value) : value;
@@ -59,21 +70,23 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post('http://localhost:5000/api/inventory', dataToSubmit)
-            .then(response => {
-                setIsError(false);
-                setMessage('Item cadastrado com sucesso!');
-                setFormData(initialFormState);
-                setFile(null);
-                if (document.getElementById('file-input')) {
-                    document.getElementById('file-input').value = '';
-                }
-            })
-            .catch(error => {
-                setIsError(true);
-                console.error('Erro ao cadastrar item:', error);
-                setMessage('Falha ao cadastrar o item. Tente novamente.');
-            });
+        axios.post('http://localhost:5000/api/inventory', dataToSubmit, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(response => {
+            setIsError(false);
+            setMessage('Item cadastrado com sucesso!');
+            setFormData(initialFormState);
+            setFile(null);
+            if (document.getElementById('file-input')) {
+                document.getElementById('file-input').value = '';
+            }
+        })
+        .catch(error => {
+            setIsError(true);
+            console.error('Erro ao cadastrar item:', error);
+            setMessage('Falha ao cadastrar o item. Tente novamente.');
+        });
     };
 
     return (

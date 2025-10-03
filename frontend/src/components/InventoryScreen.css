@@ -1,34 +1,248 @@
 /* frontend/src/components/InventoryScreen.css */
-.inventory-page { min-height: 100vh; }
-.inventory-content { padding: 2rem; max-width: 1400px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-.inventory-title { text-align: center; color: #001f5c; margin-bottom: 2rem; font-size: 2.5rem; }
-.table-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden; }
-.inventory-table { width: 100%; border-collapse: collapse; }
-.inventory-table thead { background-color: #001f5c; color: white; }
-.inventory-table th, .inventory-table td { padding: 1rem 1.5rem; text-align: left; }
-.inventory-table tbody tr { border-bottom: 1px solid #e0e0e0; transition: background-color 0.2s ease-in-out; cursor: pointer; }
-.inventory-table tbody tr:hover { background-color: #e6f0fa; }
-.loading-message { text-align: center; font-size: 1.5rem; padding: 3rem; }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 1100px; position: relative; outline: none; display: flex; flex-direction: column; max-height: 90vh; }
-.modal-close-button { position: absolute; top: 10px; right: 15px; border: none; background: transparent; font-size: 2.5rem; color: #aaa; cursor: pointer; line-height: 1; z-index: 10; }
-.modal-body { display: flex; gap: 2rem; overflow: hidden; }
-.modal-image-container { display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0; }
-.image-upload-area { width: 354px; }
-.modal-image { width: 354px; height: 472px; }
-.modal-image img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; background-color: #f0f0f0; }
-.modal-details { flex: 1; overflow-y: auto; padding-right: 1rem; }
-.modal-details h2 { margin-top: 0; color: #001f5c; border-bottom: 2px solid #e6f0fa; padding-bottom: 0.5rem; }
-.modal-details ul { list-style: none; padding: 0; }
-.modal-details li { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
-.valor-atual { font-weight: bold; color: #001f5c; }
-.edit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; align-items: center; }
-.form-group-grid { display: flex; flex-direction: column; }
-.full-width-grid-item { grid-column: 1 / -1; }
-.modal-details label { display: block; margin-top: 0.5rem; font-weight: bold; color: #555; font-size: 14px; }
-.modal-details .modal-input, .modal-details input, .modal-details select, .modal-details textarea { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
-.modal-footer { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 0.5rem; }
-.modal-edit-button, .modal-save-button, .modal-delete-button { border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; color: white; }
+.inventory-page { 
+    min-height: 100vh; 
+}
+
+.inventory-content { 
+    padding: 2rem; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.inventory-title { 
+    text-align: center; 
+    color: #001f5c; 
+    margin: 0; 
+    font-size: 2.5rem; 
+}
+
+.search-button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+.search-button:hover {
+    background-color: #1976D2;
+}
+
+.table-container { 
+    background-color: #ffffff; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    overflow: hidden; 
+}
+
+.inventory-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.inventory-table thead { 
+    background-color: #001f5c; 
+    color: white; 
+}
+
+.inventory-table th, .inventory-table td { 
+    padding: 1rem 1.5rem; 
+    text-align: left; 
+}
+
+.inventory-table tbody tr { 
+    border-bottom: 1px solid #e0e0e0; 
+    transition: background-color 0.2s ease-in-out; 
+    cursor: pointer; 
+}
+
+.inventory-table tbody tr:hover { 
+    background-color: #e6f0fa; 
+}
+
+.loading-message { 
+    text-align: center; 
+    font-size: 1.5rem; 
+    padding: 3rem; 
+}
+
+/* --- ESTILOS DO MODAL --- */
+.modal-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background-color: rgba(0, 0, 0, 0.75); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000; 
+}
+
+.modal-content { 
+    background: white; 
+    padding: 2rem; 
+    border-radius: 8px; 
+    width: 90%; 
+    max-width: 1100px; 
+    position: relative; 
+    outline: none; 
+    display: flex; 
+    flex-direction: column; 
+    max-height: 90vh; 
+}
+
+.modal-close-button { 
+    position: absolute; 
+    top: 10px; 
+    right: 15px; 
+    border: none; 
+    background: transparent; 
+    font-size: 2.5rem; 
+    color: #aaa; 
+    cursor: pointer; 
+    line-height: 1; 
+    z-index: 10; 
+}
+
+.modal-body { 
+    display: flex; 
+    gap: 2rem; 
+    overflow: hidden; 
+}
+
+.modal-image-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem; 
+    flex-shrink: 0; 
+}
+
+.image-upload-area { 
+    width: 354px; 
+}
+
+.modal-image { 
+    width: 354px; 
+    height: 472px; 
+}
+
+.modal-image img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 6px; 
+    background-color: #f0f0f0; 
+}
+
+.modal-details { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding-right: 1rem; 
+}
+
+.modal-details h2 { 
+    margin-top: 0; 
+    color: #001f5c; 
+    border-bottom: 2px solid #e6f0fa; 
+    padding-bottom: 0.5rem; 
+}
+
+.modal-details ul { 
+    list-style: none; 
+    padding: 0; 
+}
+
+.modal-details li { 
+    padding: 0.5rem 0; 
+    border-bottom: 1px solid #f0f0f0; 
+}
+
+.valor-atual { 
+    font-weight: bold; 
+    color: #001f5c; 
+}
+
+.edit-form-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 0.5rem 1.5rem; 
+    align-items: center; 
+}
+
+.form-group-grid { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.full-width-grid-item { 
+    grid-column: 1 / -1; 
+}
+
+.modal-details label { 
+    display: block; 
+    margin-top: 0.5rem; 
+    font-weight: bold; 
+    color: #555; 
+    font-size: 14px; 
+}
+
+.modal-details .modal-input, 
+.modal-details input, 
+.modal-details select, 
+.modal-details textarea { 
+    width: 100%; 
+    padding: 0.5rem; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    font-size: 1rem; 
+    box-sizing: border-box; 
+}
+
+.modal-details textarea.modal-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.modal-footer { 
+    margin-top: 1.5rem; 
+    padding-top: 1rem; 
+    border-top: 1px solid #eee; 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 0.5rem; 
+}
+
+.modal-edit-button, 
+.modal-save-button, 
+.modal-delete-button { 
+    border: none; 
+    border-radius: 5px; 
+    padding: 0.7rem 1.5rem; 
+    font-size: 1rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s; 
+    color: white; 
+}
+
 .modal-edit-button { background-color: #2196F3; }
 .modal-save-button { background-color: #4CAF50; }
 .modal-delete-button { background-color: #f44336; }
@@ -36,18 +250,23 @@
 .modal-save-button:hover { background-color: #388E3C; }
 .modal-delete-button:hover { background-color: #d32f2f; }
 
+
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .inventory-content { padding: 1rem; }
+    .inventory-content { 
+        padding: 1rem; 
+    }
     .table-container {
         overflow-x: auto; /* Permite rolagem horizontal para a tabela */
+        -webkit-overflow-scrolling: touch; /* Melhora a rolagem em iOS */
     }
     .inventory-table {
         min-width: 600px; /* Largura mínima para a tabela não espremer o conteúdo */
     }
     .modal-content {
+        width: 95vw;
         max-width: 95vw;
-        padding: 1rem;
+        padding: 1.5rem 1rem;
         max-height: 95vh;
     }
     .modal-body {
@@ -60,9 +279,13 @@
     }
     .modal-image img {
         max-height: 300px;
-        object-fit: contain; /* Garante que a imagem inteira apareça */
+        object-fit: contain; /* Garante que a imagem inteira apareça, sem cortar */
     }
     .edit-form-grid {
         grid-template-columns: 1fr; /* Uma coluna no formulário de edição */
+    }
+    .modal-details {
+        overflow-y: visible; /* Remove a rolagem interna dos detalhes no mobile */
+        padding-right: 0;
     }
 }

@@ -1,9 +1,11 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO FINAL E COMPLETA)
+// frontend/src/components/InventoryScreen.js (VERSÃO FINAL COM BUSCA INTELIGENTE)
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
 import Navbar from './Navbar';
+import QrScanner from './QrScanner'; // Importa o componente de scanner
 import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
@@ -12,14 +14,12 @@ Modal.setAppElement('#root');
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    // Retorna a data no formato AAAA-MM-DD para preencher o input type="date"
     return date.toISOString().split('T')[0];
 };
 
 const formatDateForDisplay = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    // Retorna a data no formato DD/MM/AAAA para exibição
     return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 };
 
@@ -27,6 +27,7 @@ const formatCurrency = (value) => {
     if (typeof value !== 'number') return 'R$ 0,00';
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
+
 
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
@@ -36,6 +37,12 @@ const InventoryScreen = () => {
     const [editableData, setEditableData] = useState(null);
     const [allSectors, setAllSectors] = useState([]);
     const [newFile, setNewFile] = useState(null);
+
+    // --- Estados para a Busca Inteligente ---
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [searchPatrimonio, setSearchPatrimonio] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('http://localhost:5000/api/sectors').then(res => setAllSectors(res.data));
@@ -55,7 +62,7 @@ const InventoryScreen = () => {
 
     const openModal = (item) => {
         setSelectedItem(item);
-        setEditableData({ ...item }); 
+        setEditableData({ ...item });
         setIsEditMode(false);
         setNewFile(null);
     };
@@ -72,7 +79,7 @@ const InventoryScreen = () => {
         const finalValue = type === 'number' ? parseFloat(value) : value;
         setEditableData(prev => ({ ...prev, [name]: finalValue }));
     };
-    
+
     const handleFileChange = (e) => {
         setNewFile(e.target.files[0]);
     };
@@ -90,9 +97,7 @@ const InventoryScreen = () => {
             dataToSubmit.append('foto', newFile);
         }
 
-        axios.put(`http://localhost:5000/api/inventory/${selectedItem._id}`, dataToSubmit, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        axios.put(`http://localhost:5000/api/inventory/${selectedItem._id}`, dataToSubmit)
         .then(response => {
             setInventory(prev => prev.map(item => item._id === selectedItem._id ? response.data.item : item));
             alert('Item atualizado com sucesso!');
@@ -111,6 +116,32 @@ const InventoryScreen = () => {
             })
             .catch(error => alert('Falha ao apagar o item.'));
     }, []);
+    
+    // --- Novas Funções para a Busca ---
+    const handleSearch = () => {
+        if (!searchPatrimonio) return;
+        axios.get(`http://localhost:5000/api/inventory/by-patrimonio/${searchPatrimonio.trim()}`)
+            .then(response => {
+                setIsSearchModalOpen(false);
+                setSearchPatrimonio('');
+                openModal(response.data);
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 404) {
+                    if (window.confirm(`Item com patrimônio "${searchPatrimonio}" não encontrado. Deseja cadastrá-lo agora?`)) {
+                        navigate(`/cadastro?patrimonio=${searchPatrimonio}`);
+                    }
+                } else {
+                    alert('Erro ao buscar o item.');
+                }
+            });
+    };
+
+    const handleScanSuccess = (decodedText) => {
+        setSearchPatrimonio(decodedText);
+        setIsScannerOpen(false);
+    };
+
 
     if (loading) { return <div><Navbar /><p className="loading-message">Carregando...</p></div>; }
 
@@ -118,7 +149,12 @@ const InventoryScreen = () => {
         <div className="inventory-page">
             <Navbar />
             <main className="inventory-content">
-                <h1 className="inventory-title">Inventário Geral</h1>
+                <div className="inventory-header">
+                    <h1 className="inventory-title">Inventário Geral</h1>
+                    <button onClick={() => setIsSearchModalOpen(true)} className="search-button">
+                        <i className="fas fa-search"></i> Buscar Item
+                    </button>
+                </div>
                 <div className="table-container">
                     <table className="inventory-table">
                         <thead>
@@ -235,6 +271,31 @@ const InventoryScreen = () => {
                     </div>
                 )}
             </Modal>
+            
+            <Modal isOpen={isSearchModalOpen} onRequestClose={() => setIsSearchModalOpen(false)} className="search-modal-content" overlayClassName="modal-overlay">
+                <h2>Buscar Patrimônio</h2>
+                <div className="search-input-group">
+                    <input 
+                        type="text" 
+                        placeholder="Digite o Nº do Patrimônio"
+                        value={searchPatrimonio}
+                        onChange={(e) => setSearchPatrimonio(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    />
+                    <button onClick={() => setIsScannerOpen(true)} className="qr-button" title="Ler QR Code">
+                        <i className="fas fa-qrcode"></i>
+                    </button>
+                </div>
+                <button onClick={handleSearch} className="search-modal-button">Buscar</button>
+            </Modal>
+
+            {isScannerOpen && (
+                <QrScanner 
+                    onScanSuccess={handleScanSuccess}
+                    onScanError={(err) => { /* Silencia erros contínuos */ }}
+                    onClose={() => setIsScannerOpen(false)}
+                />
+            )}
         </div>
     );
 };

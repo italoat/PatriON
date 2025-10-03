@@ -18,7 +18,7 @@ const Sector = require('./models/Sector');
 const setupEmailService = require('./email-service.js');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -161,6 +161,41 @@ app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
         res.status(200).json({ message: 'Item atualizado com sucesso!', item: updatedItem });
     } catch (error) { 
         res.status(500).json({ message: 'Erro ao atualizar o item.', error }); 
+    }
+});
+
+// =========================================================================
+// NOVA ROTA: Buscar um item específico pelo NÚMERO DO PATRIMÔNIO
+// =========================================================================
+app.get('/api/inventory/by-patrimonio/:patrimonioId', async (req, res) => {
+    try {
+        const { patrimonioId } = req.params;
+        // Busca um item onde o campo 'numeroPatrimonio' seja igual ao ID enviado
+        const item = await InventoryItem.findOne({ numeroPatrimonio: patrimonioId }).populate('setor');
+
+        if (!item) {
+            // Se não encontrar, retorna um erro 404 (Not Found)
+            return res.status(404).json({ message: 'Nenhum item encontrado com este número de patrimônio.' });
+        }
+
+        // Se encontrar, retorna o item (já com o cálculo da depreciação)
+        let itemComDepreciacao = item.toObject(); // Converte para objeto simples para poder modificar
+        if (item.entrada && item.valor > 0 && item.taxaDepreciacao >= 0) {
+            const hoje = new Date();
+            const dataEntrada = new Date(item.entrada);
+            const diffTime = Math.abs(hoje - dataEntrada);
+            const diffAnos = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+            const taxaDecimal = item.taxaDepreciacao / 100;
+            const depreciacaoTotal = item.valor * taxaDecimal * diffAnos;
+            itemComDepreciacao.valorAtual = Math.max(0, item.valor - depreciacaoTotal);
+        } else {
+            itemComDepreciacao.valorAtual = item.valor;
+        }
+
+        res.json(itemComDepreciacao);
+
+    } catch (error) { 
+        res.status(500).json({ message: "Erro ao buscar item por patrimônio.", error: error.message }); 
     }
 });
 

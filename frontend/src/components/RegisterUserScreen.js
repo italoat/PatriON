@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
-import './RegisterUserScreen.css'; // Usaremos um CSS similar ao de Cadastro de Itens
+import './RegisterUserScreen.css';
 
 const RegisterUserScreen = () => {
     const initialFormState = {
         nome: '',
         Login: '',
         senha: '',
-        perfil: '2' // Inicia com o perfil 'Usuário' selecionado
+        perfil: '2'
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -27,18 +27,11 @@ const RegisterUserScreen = () => {
         setMessage('');
         setIsError(false);
         
-        // No futuro, protegeremos esta rota. Por enquanto, ela está aberta para criação.
-        // A 'senha' é enviada como texto puro, o backend irá hasheá-la.
-        const dataToSubmit = {
-            ...formData,
-            senhaPura: formData.senha // Enviamos como 'senhaPura' se o backend esperar assim
-        };
-
-        axios.post('http://localhost:5000/api/users', dataToSubmit)
+        axios.post('http://localhost:5000/api/users', formData)
             .then(response => {
                 setIsError(false);
                 setMessage(response.data.message);
-                setFormData(initialFormState); // Limpa o formulário
+                setFormData(initialFormState);
             })
             .catch(error => {
                 setIsError(true);
