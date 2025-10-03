@@ -15,7 +15,7 @@ const ForgotPasswordScreen = () => {
         setMessage('');
         setIsError(false);
 
-        axios.post('http://localhost:5000/api/forgot-password', { email })
+        axios.post('${process.env.REACT_APP_API_URL}/api/forgot-password', { email })
             .then(response => {
                 setIsError(false);
                 setMessage(response.data.message);

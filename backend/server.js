@@ -80,7 +80,7 @@ app.post('/api/forgot-password', async (req, res) => {
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
-        const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
+        const resetURL = `${process.env.REACT_APP_API_URL}/reset-password/${resetToken}`;
         const mailOptions = { from: '"Suporte PatriOn" <suporte@patrion.com>', to: user.Login, subject: 'Redefinição de Senha - PatriOn', text: `Link para redefinir sua senha: ${resetURL}` };
         let info = await mailTransporter.sendMail(mailOptions);
         console.log("E-mail de redefinição enviado. Preview URL: %s", nodemailer.getTestMessageUrl(info));
@@ -141,7 +141,7 @@ app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     try {
         const { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao, valor, entrada, taxaDepreciacao } = req.body;
         const newItemData = { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao, valor, entrada, taxaDepreciacao };
-        if (req.file) { newItemData.foto = `http://localhost:5000/uploads/${req.file.filename}`; }
+        if (req.file) { newItemData.foto = `${process.env.REACT_APP_API_URL}/uploads/${req.file.filename}`; }
         const newItem = new InventoryItem(newItemData);
         await newItem.save();
         const populatedItem = await InventoryItem.findById(newItem._id).populate('setor');
@@ -154,7 +154,7 @@ app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
     try {
         const updatedData = req.body;
         if (req.file) {
-            updatedData.foto = `http://localhost:5000/uploads/${req.file.filename}`;
+            updatedData.foto = `${process.env.REACT_APP_API_URL}/uploads/${req.file.filename}`;
         }
         const updatedItem = await InventoryItem.findByIdAndUpdate(req.params.id, updatedData, { new: true }).populate('setor');
         if (!updatedItem) return res.status(404).json({ message: 'Item não encontrado.' });

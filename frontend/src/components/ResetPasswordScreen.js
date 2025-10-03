@@ -25,7 +25,7 @@ const ResetPasswordScreen = () => {
             return;
         }
 
-        axios.post(`http://localhost:5000/api/reset-password/${token}`, { password })
+        axios.post(`${process.env.REACT_APP_API_URL}/api/reset-password/${token}`, { password })
             .then(response => {
                 setIsError(false);
                 setMessage(response.data.message + " Você será redirecionado para o login em 5 segundos.");

@@ -29,7 +29,7 @@ const RegistrationScreen = () => {
     const [isError, setIsError] = useState(false);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/sectors')
+        axios.get('${process.env.REACT_APP_API_URL}/api/sectors')
             .then(response => {
                 setSectors(response.data);
                 if (response.data.length > 0) {
@@ -70,7 +70,7 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post('http://localhost:5000/api/inventory', dataToSubmit, {
+        axios.post('${process.env.REACT_APP_API_URL}/api/inventory', dataToSubmit, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
         .then(response => {
