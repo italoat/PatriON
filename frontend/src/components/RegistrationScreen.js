@@ -11,22 +11,24 @@ const RegistrationScreen = () => {
         numeroPatrimonio: '',
         descricao: '',
         classificacao: 'BOM',
-        setor: '', // Irá guardar o ID do setor selecionado
+        setor: '',
         outraIdentificacao: '',
         observacao: '',
+        valor: 0,
+        entrada: new Date().toISOString().split('T')[0],
+        taxaDepreciacao: 10
     };
 
     const [formData, setFormData] = useState(initialFormState);
     const [file, setFile] = useState(null);
     const [sectors, setSectors] = useState([]);
     const [message, setMessage] = useState('');
+    const [isError, setIsError] = useState(false);
 
-    // Efeito para buscar a lista de setores quando a página carregar
     useEffect(() => {
         axios.get('http://localhost:5000/api/sectors')
             .then(response => {
                 setSectors(response.data);
-                // Se houver setores, pré-seleciona o primeiro no formulário
                 if (response.data.length > 0) {
                     setFormData(prevState => ({ ...prevState, setor: response.data[0]._id }));
                 }
@@ -35,8 +37,9 @@ const RegistrationScreen = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({ ...prevState, [name]: value }));
+        const { name, value, type } = e.target;
+        const finalValue = type === 'number' ? parseFloat(value) : value;
+        setFormData(prevState => ({ ...prevState, [name]: finalValue }));
     };
 
     const handleFileChange = (e) => {
@@ -46,6 +49,7 @@ const RegistrationScreen = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setMessage('');
+        setIsError(false);
 
         const dataToSubmit = new FormData();
         for (const key in formData) {
@@ -55,21 +59,21 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post('http://localhost:5000/api/inventory', dataToSubmit, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
-        .then(response => {
-            setMessage('Item cadastrado com sucesso!');
-            setFormData(initialFormState);
-            setFile(null);
-            if (document.getElementById('file-input')) {
-                document.getElementById('file-input').value = '';
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao cadastrar item:', error);
-            setMessage('Falha ao cadastrar o item. Tente novamente.');
-        });
+        axios.post('http://localhost:5000/api/inventory', dataToSubmit)
+            .then(response => {
+                setIsError(false);
+                setMessage('Item cadastrado com sucesso!');
+                setFormData(initialFormState);
+                setFile(null);
+                if (document.getElementById('file-input')) {
+                    document.getElementById('file-input').value = '';
+                }
+            })
+            .catch(error => {
+                setIsError(true);
+                console.error('Erro ao cadastrar item:', error);
+                setMessage('Falha ao cadastrar o item. Tente novamente.');
+            });
     };
 
     return (
@@ -114,7 +118,19 @@ const RegistrationScreen = () => {
                                 <label>Outra Identificação</label>
                                 <input type="text" name="outraIdentificacao" value={formData.outraIdentificacao} onChange={handleChange} />
                             </div>
-                             <div className="form-group">
+                            <div className="form-group">
+                                <label>Data de Entrada</label>
+                                <input type="date" name="entrada" value={formData.entrada} onChange={handleChange} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Valor do Item (R$)</label>
+                                <input type="number" name="valor" value={formData.valor} onChange={handleChange} step="0.01" min="0" required />
+                            </div>
+                            <div className="form-group">
+                                <label>Taxa de Depreciação Anual (%)</label>
+                                <input type="number" name="taxaDepreciacao" value={formData.taxaDepreciacao} onChange={handleChange} step="1" min="0" max="100" required placeholder="Ex: 10 para 10%" />
+                            </div>
+                            <div className="form-group">
                                 <label>Foto do Equipamento</label>
                                 <input type="file" id="file-input" name="foto" onChange={handleFileChange} />
                             </div>
@@ -125,7 +141,7 @@ const RegistrationScreen = () => {
                         </div>
                         <button type="submit" className="submit-button">Cadastrar Item</button>
                     </form>
-                    {message && <p className="form-message">{message}</p>}
+                    {message && <p className={`form-message ${isError ? 'error' : 'success'}`}>{message}</p>}
                 </div>
             </main>
         </div>

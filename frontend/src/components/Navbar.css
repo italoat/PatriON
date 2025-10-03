@@ -3,94 +3,42 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #001f5c; /* Mesma cor do login */
+    background-color: #001f5c;
     color: white;
-    padding: 0 40px;
+    padding: 0 2rem;
     height: 70px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 100;
 }
+.navbar-brand { display: flex; align-items: center; }
+.logo_barra { height: 40px; }
+.nav-links-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: 1rem; }
+.nav-links a { color: #a9bce2; text-decoration: none; padding: 0 1rem; font-weight: 500; transition: color 0.3s ease; }
+.nav-links a:hover, .nav-links a.active { color: white; }
+.user-section { display: flex; align-items: center; gap: 1rem; }
+.user-info { color: #e0e0e0; font-size: 0.9rem; text-transform: capitalize; white-space: nowrap; }
+.logout-button { background-color: #f44336; color: white; border: none; border-radius: 5px; padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
+.hamburger { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
 
-.logo_barra {
-    width: 100px; /* Ajuste a largura conforme necessário */
-    height: auto; /* Mantém a proporção da imagem */
-    align-items: center;
-}
-
-.navbar-brand {
-    font-size: 2rem;
-    align-items: center;
-    font-weight: bold;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-}
-
-.nav-links li {
-    display: flex;
-    align-items: center;
-    height: 100%;
-}
-
-.nav-links a {
-    color: #a9bce2; /* Cor mais suave para links inativos */
-    text-decoration: none;
-    padding: 0 20px;
-    font-size: 1rem;
-    font-weight: 500;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    border-bottom: 3px solid transparent; /* Espaço para a borda ativa */
-    transition: color 0.3s ease, border-color 0.3s ease;
-}
-
-.nav-links a:hover {
-    color: white;
-}
-
-.nav-links a.active-link {
-    color: white;
-    border-bottom: 3px solid #3c77e7; /* Borda azul para o link ativo */
-}
-
-.nav-links-container {
-    display: flex;
-    justify-content: space-between; /* Alinha os links à esquerda e a seção do usuário à direita */
-    align-items: center;
-    width: 100%;
-}
-
-.user-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.user-info {
-    color: #e0e0e0;
-    font-size: 0.9rem;
-    text-transform: capitalize; /* Deixa a primeira letra maiúscula */
-}
-
-/* Estilos existentes */
-.logout-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.logout-button:hover {
-    background-color: #d32f2f;
+/* --- Media Query para Mobile --- */
+@media (max-width: 992px) {
+    .hamburger { display: block; }
+    .nav-links-container {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: #002c8a;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .nav-links-container.active { max-height: 500px; }
+    .nav-links { flex-direction: column; width: 100%; gap: 0; }
+    .nav-links a { padding: 1rem 2rem; width: 100%; display: block; }
+    .user-section { flex-direction: column; align-items: flex-start; width: 100%; padding: 1rem 2rem; gap: 1rem; }
 }

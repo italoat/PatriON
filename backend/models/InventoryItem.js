@@ -1,4 +1,5 @@
 // backend/models/InventoryItem.js
+
 const mongoose = require('mongoose');
 
 const inventoryItemSchema = new mongoose.Schema({
@@ -6,18 +7,32 @@ const inventoryItemSchema = new mongoose.Schema({
     numeroPatrimonioAnterior: String,
     descricao: { type: String, required: true },
     classificacao: String,
-    // CORREÇÃO AQUI: Definimos o 'setor' como uma referência ao modelo 'Sector'
-    setor: { 
+    setor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Sector', // Aponta para o modelo 'Sector'
+        ref: 'Sector',
         required: true
     },
     outraIdentificacao: String,
     observacao: String,
-    foto: String
+    foto: String,
+    valor: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    entrada: {
+        type: Date,
+        required: true,
+        default: Date.now
+    },
+    taxaDepreciacao: {
+        type: Number,
+        required: true,
+        default: 10 // MUDANÇA AQUI: O padrão agora é 10 (representando 10%)
+    }
+
 }, { timestamps: { createdAt: 'dataCadastro', updatedAt: 'ultimaAtualizacao' } });
 
-// O nome da coleção continua 'itens'
 const InventoryItem = mongoose.model('InventoryItem', inventoryItemSchema, 'itens');
 
 module.exports = InventoryItem;

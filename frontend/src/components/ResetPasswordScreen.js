@@ -1,16 +1,17 @@
 // frontend/src/components/ResetPasswordScreen.js
 
 import React, { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+// A palavra 'Link' foi removida da importação abaixo
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './RegistrationScreen.css'; // Reutilizaremos o estilo
+import './RegistrationScreen.css'; // Reutiliza o estilo
 
 const ResetPasswordScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
-    const { token } = useParams(); // Pega o token da URL (ex: /reset-password/TOKEN_AQUI)
+    const { token } = useParams();
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
@@ -24,7 +25,6 @@ const ResetPasswordScreen = () => {
             return;
         }
 
-        // A rota /api/reset-password ainda será criada no backend
         axios.post(`http://localhost:5000/api/reset-password/${token}`, { password })
             .then(response => {
                 setIsError(false);

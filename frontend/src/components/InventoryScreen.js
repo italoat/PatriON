@@ -1,4 +1,4 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO FINAL, CORRIGIDA E COMPLETA)
+// frontend/src/components/InventoryScreen.js (VERSÃO FINAL E COMPLETA)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -8,6 +8,26 @@ import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
+// --- FUNÇÕES DE FORMATAÇÃO ---
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    // Retorna a data no formato AAAA-MM-DD para preencher o input type="date"
+    return date.toISOString().split('T')[0];
+};
+
+const formatDateForDisplay = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    // Retorna a data no formato DD/MM/AAAA para exibição
+    return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+};
+
+const formatCurrency = (value) => {
+    if (typeof value !== 'number') return 'R$ 0,00';
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,48 +35,71 @@ const InventoryScreen = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editableData, setEditableData] = useState(null);
     const [allSectors, setAllSectors] = useState([]);
+    const [newFile, setNewFile] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/sectors')
-            .then(response => { setAllSectors(response.data); })
-            .catch(error => console.error("Erro ao buscar a lista de setores:", error));
+        axios.get('http://localhost:5000/api/sectors').then(res => setAllSectors(res.data));
     }, []);
 
-    useEffect(() => {
+    const fetchInventory = useCallback(() => {
         setLoading(true);
         axios.get('http://localhost:5000/api/inventory')
-            .then(response => { setInventory(response.data); })
-            .catch(error => { console.error("Erro ao buscar inventário:", error); })
-            .finally(() => { setLoading(false); });
+            .then(res => setInventory(res.data))
+            .catch(error => console.error("Erro ao buscar inventário:", error))
+            .finally(() => setLoading(false));
     }, []);
+
+    useEffect(() => {
+        fetchInventory();
+    }, [fetchInventory]);
 
     const openModal = (item) => {
         setSelectedItem(item);
         setEditableData({ ...item }); 
         setIsEditMode(false);
+        setNewFile(null);
     };
 
     const closeModal = () => {
         setSelectedItem(null);
         setEditableData(null);
         setIsEditMode(false);
+        setNewFile(null);
     };
 
     const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditableData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type } = e.target;
+        const finalValue = type === 'number' ? parseFloat(value) : value;
+        setEditableData(prev => ({ ...prev, [name]: finalValue }));
+    };
+    
+    const handleFileChange = (e) => {
+        setNewFile(e.target.files[0]);
     };
 
     const handleUpdate = useCallback(() => {
-        const dataToUpdate = { ...editableData, setor: editableData.setor._id || editableData.setor };
-        axios.put(`http://localhost:5000/api/inventory/${selectedItem._id}`, dataToUpdate)
-            .then(response => {
-                setInventory(prev => prev.map(item => item._id === selectedItem._id ? response.data.item : item));
-                alert('Item atualizado com sucesso!');
-                closeModal();
-            })
-            .catch(error => { console.error("Erro ao atualizar o item:", error); alert('Falha ao salvar as alterações.'); });
-    }, [editableData, selectedItem]);
+        const dataToSubmit = new FormData();
+        Object.keys(editableData).forEach(key => {
+            if (key === 'setor') {
+                dataToSubmit.append('setor', editableData.setor._id || editableData.setor);
+            } else if (key !== '_id' && key !== '__v' && key !== 'valorAtual') {
+                dataToSubmit.append(key, editableData[key]);
+            }
+        });
+        if (newFile) {
+            dataToSubmit.append('foto', newFile);
+        }
+
+        axios.put(`http://localhost:5000/api/inventory/${selectedItem._id}`, dataToSubmit, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(response => {
+            setInventory(prev => prev.map(item => item._id === selectedItem._id ? response.data.item : item));
+            alert('Item atualizado com sucesso!');
+            closeModal();
+        })
+        .catch(error => { console.error("Erro ao atualizar o item:", error); alert('Falha ao salvar as alterações.'); });
+    }, [editableData, selectedItem, newFile]);
 
     const handleDelete = useCallback((itemToDelete) => {
         if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete.descricao}"?`)) return;
@@ -69,9 +112,7 @@ const InventoryScreen = () => {
             .catch(error => alert('Falha ao apagar o item.'));
     }, []);
 
-    if (loading) {
-        return <div><Navbar /><p className="loading-message">Carregando inventário...</p></div>;
-    }
+    if (loading) { return <div><Navbar /><p className="loading-message">Carregando...</p></div>; }
 
     return (
         <div className="inventory-page">
@@ -105,42 +146,84 @@ const InventoryScreen = () => {
                     <div>
                         <button type="button" onClick={closeModal} className="modal-close-button">&times;</button>
                         <div className="modal-body">
-                            <div className="modal-image">
-                                <img src={selectedItem.foto || `https://via.placeholder.com/300x250.png?text=Sem+Imagem`} alt={selectedItem.descricao} />
+                            <div className="modal-image-container">
+                                <div className="modal-image">
+                                    <img src={newFile ? URL.createObjectURL(newFile) : (selectedItem.foto || `https://via.placeholder.com/354x472.png?text=Sem+Imagem`)} alt={selectedItem.descricao} />
+                                </div>
+                                {isEditMode && (
+                                    <div className="form-group-grid image-upload-area">
+                                        <label>Substituir Imagem:</label>
+                                        <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
+                                    </div>
+                                )}
                             </div>
                             <div className="modal-details">
                                 <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
                                 {isEditMode ? (
-                                    <>
-                                        <label>Descrição:</label>
-                                        <input className="modal-input" type="text" name="descricao" value={editableData.descricao} onChange={handleEditChange} required/>
-                                        <label>Setor:</label>
-                                        <select className="modal-input" name="setor" value={editableData.setor ? editableData.setor._id : ''} onChange={handleEditChange} required>
-                                            <option value="" disabled>Selecione um setor</option>
-                                            {allSectors.map(sector => ( <option key={sector._id} value={sector._id}>{sector.nome}</option> ))}
-                                        </select>
-                                        <label>Classificação:</label>
-                                        <select className="modal-input" name="classificacao" value={editableData.classificacao} onChange={handleEditChange}>
-                                            <option value="BOM">Bom</option> <option value="OTIMO">Ótimo</option> <option value="INSERVIVEL">Inservível</option> <option value="OCIOSO">Ocioso</option>
-                                        </select>
-                                        <label>Observação:</label>
-                                        <textarea className="modal-input" name="observacao" value={editableData.observacao || ''} onChange={handleEditChange}></textarea>
-                                    </>
+                                    <div className="edit-form-grid">
+                                        <div className="form-group-grid">
+                                            <label>Nº Patrimônio:</label>
+                                            <input className="modal-input" type="text" name="numeroPatrimonio" value={editableData.numeroPatrimonio || ''} onChange={handleEditChange} required/>
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Patrimônio Anterior:</label>
+                                            <input className="modal-input" type="text" name="numeroPatrimonioAnterior" value={editableData.numeroPatrimonioAnterior || ''} onChange={handleEditChange} />
+                                        </div>
+                                        <div className="form-group-grid full-width-grid-item">
+                                            <label>Descrição:</label>
+                                            <input className="modal-input" type="text" name="descricao" value={editableData.descricao || ''} onChange={handleEditChange} required/>
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Setor:</label>
+                                            <select className="modal-input" name="setor" value={editableData.setor ? (editableData.setor._id || editableData.setor) : ''} onChange={handleEditChange} required>
+                                                <option value="" disabled>Selecione</option>
+                                                {allSectors.map(s => <option key={s._id} value={s._id}>{s.nome}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Classificação:</label>
+                                            <select className="modal-input" name="classificacao" value={editableData.classificacao || 'BOM'} onChange={handleEditChange}>
+                                                <option value="BOM">Bom</option> <option value="OTIMO">Ótimo</option> <option value="INSERVIVEL">Inservível</option> <option value="OCIOSO">Ocioso</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Data de Entrada:</label>
+                                            <input className="modal-input" type="date" name="entrada" value={formatDate(editableData.entrada)} onChange={handleEditChange} />
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Valor Contábil (R$):</label>
+                                            <input className="modal-input" type="number" name="valor" value={editableData.valor || 0} onChange={handleEditChange} step="0.01" min="0" />
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Taxa de Depreciação (%):</label>
+                                            <input className="modal-input" type="number" name="taxaDepreciacao" value={editableData.taxaDepreciacao || 0} onChange={handleEditChange} step="1" min="0" max="100" />
+                                        </div>
+                                        <div className="form-group-grid">
+                                            <label>Outra Identificação:</label>
+                                            <input className="modal-input" type="text" name="outraIdentificacao" value={editableData.outraIdentificacao || ''} onChange={handleEditChange} />
+                                        </div>
+                                        <div className="form-group-grid full-width-grid-item">
+                                            <label>Observação:</label>
+                                            <textarea className="modal-input" name="observacao" value={editableData.observacao || ''} onChange={handleEditChange}></textarea>
+                                        </div>
+                                    </div>
                                 ) : (
                                     <ul>
                                         <li><strong>Nº Patrimônio:</strong> {selectedItem.numeroPatrimonio}</li>
                                         <li><strong>Patrimônio Anterior:</strong> {selectedItem.numeroPatrimonioAnterior}</li>
                                         <li><strong>Descrição:</strong> {selectedItem.descricao}</li>
                                         <li><strong>Classificação:</strong> {selectedItem.classificacao}</li>
-                                        {/* CORREÇÃO DO ERRO DE DIGITAÇÃO ESTÁ AQUI */}
                                         <li><strong>Setor:</strong> {selectedItem.setor ? selectedItem.setor.nome : 'N/A'}</li>
                                         <li><strong>Outra Identificação:</strong> {selectedItem.outraIdentificacao}</li>
+                                        <li><strong>Data de Entrada:</strong> {formatDateForDisplay(selectedItem.entrada)}</li>
+                                        <li><strong>Valor Contábil:</strong> {formatCurrency(selectedItem.valor)}</li>
+                                        <li><strong>Taxa de Depreciação:</strong> {selectedItem.taxaDepreciacao}% a.a.</li>
+                                        <li className="valor-atual"><strong>Valor Atual (Depreciado):</strong> {formatCurrency(selectedItem.valorAtual)}</li>
                                         <li><strong>Observação:</strong> {selectedItem.observacao}</li>
                                     </ul>
                                 )}
                             </div>
                         </div>
-                        
                         <div className="modal-footer">
                             {isEditMode ? (
                                 <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar Alterações</button>

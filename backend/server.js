@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO FINAL E COMPLETA)
+// backend/server.js (VERSÃO COMPLETA E ATUALIZADA)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -78,7 +78,7 @@ app.post('/api/forgot-password', async (req, res) => {
         if (!user) return res.status(200).json({ message: 'Se um usuário com este e-mail existir, um link de redefinição foi enviado.' });
         const resetToken = crypto.randomBytes(20).toString('hex');
         user.resetPasswordToken = resetToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+        user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
         const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
         const mailOptions = { from: '"Suporte PatriOn" <suporte@patrion.com>', to: user.Login, subject: 'Redefinição de Senha - PatriOn', text: `Link para redefinir sua senha: ${resetURL}` };
@@ -111,21 +111,36 @@ app.get('/api/sectors', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Erro ao buscar setores." }); }
 });
 
-// Rota de Inventário (GET)
+// Rota de Inventário (GET) com Cálculo de Depreciação
 app.get('/api/inventory', async (req, res) => {
     try {
         const { setorId } = req.query;
         const filter = (setorId && setorId !== 'Todos') ? { setor: setorId } : {};
-        const items = await InventoryItem.find(filter).populate('setor');
-        res.json(items);
-    } catch (error) { res.status(500).json({ message: "Erro ao buscar inventário.", error: error.message }); }
+        const itemsFromDB = await InventoryItem.find(filter).populate('setor').lean();
+        const itemsWithDepreciation = itemsFromDB.map(item => {
+            if (item.entrada && item.valor > 0 && item.taxaDepreciacao >= 0) {
+                const hoje = new Date();
+                const dataEntrada = new Date(item.entrada);
+                const diffTime = Math.abs(hoje - dataEntrada);
+                const diffAnos = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                const taxaDecimal = item.taxaDepreciacao / 100;
+                const depreciacaoTotal = item.valor * taxaDecimal * diffAnos;
+                let valorAtual = item.valor - depreciacaoTotal;
+                return { ...item, valorAtual: Math.max(0, valorAtual) };
+            }
+            return { ...item, valorAtual: item.valor };
+        });
+        res.json(itemsWithDepreciation);
+    } catch (error) { 
+        res.status(500).json({ message: "Erro ao buscar inventário.", error: error.message }); 
+    }
 });
 
 // Rota de Inventário (POST)
 app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     try {
-        const { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao } = req.body;
-        const newItemData = { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao };
+        const { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao, valor, entrada, taxaDepreciacao } = req.body;
+        const newItemData = { numeroPatrimonio, numeroPatrimonioAnterior, descricao, classificacao, setor, outraIdentificacao, observacao, valor, entrada, taxaDepreciacao };
         if (req.file) { newItemData.foto = `http://localhost:5000/uploads/${req.file.filename}`; }
         const newItem = new InventoryItem(newItemData);
         await newItem.save();
@@ -134,13 +149,19 @@ app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     } catch (error) { res.status(500).json({ message: 'Erro ao cadastrar o item.', error }); }
 });
 
-// Rota de Inventário (PUT)
-app.put('/api/inventory/:id', async (req, res) => {
+// Rota de Inventário (PUT) - ATUALIZADA PARA ACEITAR IMAGEM
+app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
     try {
-        const updatedItem = await InventoryItem.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('setor');
+        const updatedData = req.body;
+        if (req.file) {
+            updatedData.foto = `http://localhost:5000/uploads/${req.file.filename}`;
+        }
+        const updatedItem = await InventoryItem.findByIdAndUpdate(req.params.id, updatedData, { new: true }).populate('setor');
         if (!updatedItem) return res.status(404).json({ message: 'Item não encontrado.' });
         res.status(200).json({ message: 'Item atualizado com sucesso!', item: updatedItem });
-    } catch (error) { res.status(500).json({ message: 'Erro ao atualizar o item.', error }); }
+    } catch (error) { 
+        res.status(500).json({ message: 'Erro ao atualizar o item.', error }); 
+    }
 });
 
 // Rota de Inventário (DELETE)

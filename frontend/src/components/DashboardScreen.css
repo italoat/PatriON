@@ -1,132 +1,163 @@
 /* frontend/src/components/DashboardScreen.css */
-.dashboard-page {
-    min-height: 100vh;
+.dashboard-page { 
+    min-height: 100vh; 
 }
 
-.dashboard-content {
-    padding: 2rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 1600px;
-    margin: 0 auto;
+.dashboard-content { 
+    padding: 2rem; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    max-width: 1800px; 
+    margin: 0 auto; 
 }
 
-.dashboard-title {
-    text-align: center;
-    color: #001f5c;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
-}
-
-.filter-container {
+.header-actions {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 2rem;
     margin-bottom: 2rem;
-    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.filter-container label {
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.filter-container select {
-    padding: 0.5rem 1rem;
+.pdf-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.6rem 1.2rem;
     font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.pdf-button:hover {
+    background-color: #388E3C;
+}
+.pdf-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+body.pdf-generating { 
+    background-image: none !important;
+    background-color: white !important; 
+}
+body.pdf-generating #dashboard-report { 
+    margin-top: 2rem; 
+}
+body.pdf-generating .dashboard-title { 
+    color: #001f5c; 
+}
+
+.filter-container { 
+    margin-bottom: 0; 
+}
+
+.dashboard-title { 
+    text-align: center; 
+    color: #001f5c; 
+    margin-bottom: 1.5rem; 
+    font-size: 2.5rem; 
 }
 
 .charts-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
-    margin-bottom: 3rem; /* Espaço entre os gráficos e a tabela */
+    margin-bottom: 3rem;
 }
 
-.chart-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+.chart-card { 
+    background-color: #ffffff; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    padding: 1.5rem; 
+    display: flex; 
+    flex-direction: column; 
 }
 
-.chart-card h3 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
+.chart-card h3 { 
+    text-align: center; 
+    margin-top: 0;
+    margin-bottom: 1.5rem; 
+    color: #333; 
 }
 
-.chart-card canvas {
-    cursor: pointer;
+.chart-card canvas { 
+    cursor: pointer; 
 }
 
-.chart-card-doughnut {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-height: 500px;
+.loading-message { 
+    text-align: center; 
+    font-size: 1.5rem; 
+    padding: 3rem; 
 }
 
-.loading-message {
-    text-align: center;
-    font-size: 1.5rem;
-    padding: 3rem;
+.full-width-chart {
+    grid-column: 1 / -1;
 }
 
-/* --- NOVOS ESTILOS PARA A TABELA E FILTRO --- */
-.table-section {
-    margin-top: 2rem;
+.table-section { 
+    margin-top: 2rem; 
 }
 
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+.table-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 1rem; 
 }
 
-.table-header h2 {
-    color: #001f5c;
-    margin: 0;
+.table-header h2 { 
+    color: #001f5c; 
+    margin: 0; 
 }
 
-.clear-filter-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.clear-filter-button { 
+    background-color: #f44336; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    padding: 0.5rem 1rem; 
+    font-size: 0.9rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s; 
 }
 
-.clear-filter-button:hover {
-    background-color: #d32f2f;
+.clear-filter-button:hover { 
+    background-color: #d32f2f; 
 }
 
-.table-container {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow-x: auto;
+.table-container { 
+    background-color: #ffffff; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    overflow-x: auto; 
 }
 
-.inventory-table {
-    width: 100%;
-    border-collapse: collapse;
+.inventory-table { 
+    width: 100%; 
+    border-collapse: collapse; 
 }
 
-.inventory-table thead {
-    background-color: #001f5c;
-    color: white;
+.inventory-table thead { 
+    background-color: #001f5c; 
+    color: white; 
 }
 
-.inventory-table th, .inventory-table td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+.inventory-table th, .inventory-table td { 
+    padding: 1rem 1.5rem; 
+    text-align: left; 
+    border-bottom: 1px solid #e0e0e0; 
+}
+
+/* --- Media Query para Mobile --- */
+@media (max-width: 992px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* Uma coluna só */
+    }
+    .dashboard-content {
+        padding: 1rem;
+    }
 }
