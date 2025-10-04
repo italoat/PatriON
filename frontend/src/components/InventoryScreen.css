@@ -107,7 +107,7 @@
     outline: none; 
     display: flex; 
     flex-direction: column; 
-    max-height: 90vh; /* O modal nunca será maior que 90% da altura da tela */
+    max-height: 90vh; 
 }
 
 .modal-close-button { 
@@ -127,8 +127,8 @@
     display: flex; 
     gap: 2rem; 
     overflow: hidden;
-    flex: 1; /* Faz o corpo ocupar o espaço disponível */
-    min-height: 0; /* Truque de CSS para a rolagem funcionar dentro do flexbox */
+    flex: 1;
+    min-height: 0;
 }
 
 .modal-image-container { 
@@ -157,7 +157,7 @@
 
 .modal-details { 
     flex: 1; 
-    overflow-y: auto; /* A rolagem acontece AQUI, na área de detalhes */
+    overflow-y: auto; 
     padding-right: 1rem; 
 }
 
@@ -189,13 +189,13 @@
 .modal-details textarea.modal-input { min-height: 80px; resize: vertical; }
 
 .modal-footer { 
-    margin-top: auto; /* Empurra o rodapé para o final do modal */
+    margin-top: auto; 
     padding-top: 1rem; 
     border-top: 1px solid #eee; 
     display: flex; 
     justify-content: flex-end; 
     gap: 0.5rem; 
-    flex-shrink: 0; /* Impede que o rodapé encolha */
+    flex-shrink: 0;
 }
 
 .modal-edit-button, 
@@ -279,10 +279,11 @@
         padding: 1rem; 
     }
     .table-container {
-        -webkit-overflow-scrolling: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     .inventory-table {
-        min-width: auto;
+        min-width: 600px;
     }
     .modal-content {
         padding: 1.5rem 1rem;
@@ -298,15 +299,16 @@
         height: auto;
     }
     .modal-image img {
-        max-height: 250px;
+        max-height: 250px; /* IMAGEM MENOR NO MOBILE */
         object-fit: contain;
     }
     .edit-form-grid {
         grid-template-columns: 1fr;
     }
     .modal-details {
-        flex: 1;
+        flex: 1; /* Permite que a área de detalhes cresça */
         min-height: 0; /* Garante que a rolagem funcione */
+        overflow-y: auto; /* A rolagem acontece aqui */
         padding-right: 0.5rem;
     }
 }
