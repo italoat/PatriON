@@ -95,27 +95,42 @@
 
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .inventory-content { padding: 1rem; }
-    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .inventory-table { min-width: 600px; }
-    
+    .inventory-content { 
+        padding: 1rem; 
+    }
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .inventory-table {
+        min-width: 600px;
+    }
     .modal-content {
-        padding: 1rem;
-        max-height: 95vh;
         width: 95vw;
         max-width: 95vw;
+        padding: 1.5rem 1rem;
+        max-height: 95vh;
     }
     .modal-body {
-        flex-direction: column; /* Empilha a imagem e os detalhes */
-        /* As propriedades flex: 1 e min-height: 0 já garantem que esta área ocupe o espaço correto */
-        overflow-y: auto; /* CORREÇÃO: O corpo do modal agora é o container de rolagem */
+        flex-direction: column;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
     }
-    .modal-image-container, .modal-image { width: 100%; height: auto; }
-    .modal-image img { max-height: 250px; object-fit: contain; }
+    .modal-image-container, .modal-image {
+        width: 100%;
+        height: auto;
+    }
+    .modal-image img {
+        max-height: 300px;
+        object-fit: contain;
+    }
+    .edit-form-grid {
+        grid-template-columns: 1fr;
+    }
     .modal-details {
-        overflow-y: visible; /* Desativamos a rolagem aqui dentro */
+        overflow-y: visible;
         padding-right: 0;
-        flex: initial; /* Resetamos o flex para que ele não tente crescer */
+        flex: initial;
     }
-    .edit-form-grid { grid-template-columns: 1fr; }
 }
