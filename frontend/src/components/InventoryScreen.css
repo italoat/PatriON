@@ -279,6 +279,7 @@
         padding: 1rem; 
     }
     .table-container {
+        overflow-y: auto;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -308,6 +309,7 @@
     .modal-details {
         flex: 1;
         min-height: 0; /* Garante que a rolagem funcione */
+        overflow-x: auto;
         overflow-y: auto; /* A rolagem acontece aqui */
         padding-right: 0.5rem;
     }
