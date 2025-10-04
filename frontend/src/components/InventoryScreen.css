@@ -1,7 +1,7 @@
 /* frontend/src/components/InventoryScreen.css */
 .inventory-page { 
     min-height: 100vh;
-    padding-top: 70px; /* Margem para a navbar fixa */
+    padding-top: 90px; /* Margem para a navbar fixa */
 }
 
 .inventory-content { 

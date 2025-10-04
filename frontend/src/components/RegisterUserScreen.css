@@ -1,7 +1,7 @@
 /* frontend/src/components/RegisterUserScreen.css */
 .register-user-page { 
     min-height: 100vh; 
-    padding-top: 70px; /* Margem para a navbar fixa */
+    padding-top: 90px; /* Margem para a navbar fixa */
 }
 
 .register-user-content { 

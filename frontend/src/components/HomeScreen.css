@@ -2,6 +2,7 @@
 .home-container {
     /* background-color: #f0f4ff; REMOVER OU COMENTAR */ /* Fundo claro para a área de conteúdo */
     min-height: 100vh;
+    padding-top: 90px; /* ANTES: 0. Adiciona a margem para a navbar fixa */
 }
 
 .content {
