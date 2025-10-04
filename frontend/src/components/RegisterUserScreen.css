@@ -1,92 +1,78 @@
-/* frontend/src/components/RegistrationScreen.css */
-.registration-page {
-    min-height: 100vh;
+/* frontend/src/components/RegisterUserScreen.css */
+.register-user-page { 
+    min-height: 100vh; 
+    padding-top: 70px; /* Margem para a navbar fixa */
 }
 
-.registration-content {
-    padding: 2rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
+.register-user-content { 
+    padding: 2rem; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    display: flex; 
+    justify-content: center; 
 }
 
-.form-container {
-    background-color: #ffffff;
-    padding: 2rem 3rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 1100px; /* ANTES: 900px */
+.form-container { 
+    background-color: #ffffff; 
+    padding: 2rem 3rem; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+    width: 100%; 
+    max-width: 600px; 
 }
 
-.form-container h1 {
-    text-align: center;
-    color: #001f5c;
-    margin-bottom: 2rem;
-    font-size: 2rem;
+.form-container h1 { 
+    text-align: center; 
+    color: #001f5c; 
+    margin-bottom: 2rem; 
+    font-size: 2.2rem;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+.form-group { 
+    display: flex; 
+    flex-direction: column; 
+    margin-bottom: 1.5rem; 
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
+.form-group label { 
+    margin-bottom: 0.5rem; 
+    font-weight: 500; 
+    color: #333; 
     font-size: 15px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 15px;
+.form-group input, 
+.form-group select { 
+    padding: 0.75rem; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    font-size: 15px; 
+    font-family: inherit; 
 }
 
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
+.submit-button { 
+    width: 100%; 
+    padding: 1rem; 
+    margin-top: 1rem; 
+    background-color: #001f5c; 
+    color: white; 
+    border: none; 
+    border-radius: 6px; 
+    font-size: 1rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s; 
 }
 
-.submit-button {
-    width: 100%;
-    padding: 1rem;
-    margin-top: 2rem;
-    background-color: #001f5c;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 1rem;
+.submit-button:hover { 
+    background-color: #003399; 
 }
 
-.submit-button:hover {
-    background-color: #003399;
-}
-
-.form-message {
-    text-align: center;
-    margin-top: 1rem;
-    font-weight: bold;
-    padding: 0.5rem;
-    border-radius: 4px;
+.form-message { 
+    text-align: center; 
+    margin-top: 1rem; 
+    font-weight: bold; 
+    padding: 0.5rem; 
+    border-radius: 4px; 
     font-size: 14px;
 }
 
@@ -104,14 +90,10 @@
 
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
     .form-container {
         padding: 2rem 1.5rem;
-        /* max-width não é necessário aqui, pois width: 100% já se aplica */
     }
-    .registration-content {
+    .register-user-content {
         padding: 1rem;
     }
 }

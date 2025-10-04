@@ -7,8 +7,12 @@
     color: white;
     padding: 0 2rem;
     height: 70px;
-    position: relative;
-    z-index: 100;
+    position: fixed; /* Fixa a barra no topo */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Garante que fique sobre o outro conteúdo */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 .navbar-brand { display: flex; align-items: center; }
 .logo_barra { height: 40px; }
@@ -21,8 +25,9 @@
 .logout-button { background-color: #f44336; color: white; border: none; border-radius: 5px; padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
 .hamburger { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
 
-/* --- Media Query para Mobile --- */
+/* --- Media Query para Mobile (largura <= 992px) --- */
 @media (max-width: 992px) {
+    .navbar { padding: 0 1rem; }
     .hamburger { display: block; }
     .nav-links-container {
         position: absolute;
@@ -36,9 +41,11 @@
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s ease-out;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
     .nav-links-container.active { max-height: 500px; }
     .nav-links { flex-direction: column; width: 100%; gap: 0; }
-    .nav-links a { padding: 1rem 2rem; width: 100%; display: block; }
+    .nav-links a { padding: 1rem 2rem; width: 100%; display: block; border-left: 3px solid transparent; }
+    .nav-links a.active { border-left-color: #3c77e7; background-color: rgba(0,0,0,0.1); }
     .user-section { flex-direction: column; align-items: flex-start; width: 100%; padding: 1rem 2rem; gap: 1rem; }
 }
