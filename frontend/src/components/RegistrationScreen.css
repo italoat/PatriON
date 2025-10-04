@@ -29,7 +29,7 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Duas colunas por padrão (Desktop) */
+    grid-template-columns: 1fr 1fr; /* Duas colunas por padrão (Desktop) */
     gap: 2rem;
 }
 

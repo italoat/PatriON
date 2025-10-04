@@ -126,7 +126,9 @@
 .modal-body { 
     display: flex; 
     gap: 2rem; 
-    overflow: hidden; 
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
 }
 
 .modal-image-container { 
@@ -229,6 +231,7 @@
     display: flex; 
     justify-content: flex-end; 
     gap: 0.5rem; 
+    flex-shrink: 0;
 }
 
 .modal-edit-button, 
@@ -345,9 +348,5 @@
         overflow-y: visible;
         padding-right: 0;
         flex: initial;
-    }
-    .modal-footer {
-        margin-top: auto;
-        flex-shrink: 0;
     }
 }

@@ -23,3 +23,10 @@ code {
     font-size: 14px;
   }
 }
+
+/* ========================================================= */
+/* ADIÇÃO PARA CORRIGIR A ROLAGEM DO FUNDO DO POPUP */
+/* ========================================================= */
+.ReactModal__Body--open {
+  overflow: hidden;
+}
