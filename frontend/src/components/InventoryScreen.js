@@ -10,7 +10,6 @@ import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
-// --- FUNÇÕES DE FORMATAÇÃO ---
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
