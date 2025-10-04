@@ -251,72 +251,17 @@
 .modal-save-button:hover { background-color: #388E3C; }
 .modal-delete-button:hover { background-color: #d32f2f; }
 
-
-/* --- ESTILOS DO MODAL DE BUSCA --- */
-.search-modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    outline: none;
-    text-align: center;
-}
-.search-modal-content h2 {
-    margin-top: 0;
-    color: #001f5c;
-}
-.search-input-group {
-    display: flex;
-    margin: 1.5rem 0;
-}
-.search-input-group input {
-    flex-grow: 1;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px 0 0 6px;
-}
-.qr-button {
-    padding: 0 1rem;
-    border: 1px solid #ccc;
-    border-left: none;
-    background: #f0f0f0;
-    cursor: pointer;
-    border-radius: 0 6px 6px 0;
-    font-size: 1.5rem;
-    color: #555;
-    display: flex;
-    align-items: center;
-}
-.search-modal-button {
-    width: 100%;
-    padding: 1rem;
-    background-color: #001f5c;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.search-modal-button:hover {
-    background-color: #003399;
-}
-
-
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
     .inventory-content { 
         padding: 1rem; 
     }
     .table-container {
-        overflow-x: auto; /* Permite rolagem horizontal para a tabela */
-        -webkit-overflow-scrolling: touch; /* Melhora a rolagem em iOS */
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     .inventory-table {
-        min-width: 600px; /* Largura mínima para a tabela não espremer o conteúdo */
+        min-width: 600px;
     }
     .modal-content {
         width: 95vw;
@@ -325,8 +270,8 @@
         max-height: 95vh;
     }
     .modal-body {
-        flex-direction: column; /* Empilha a imagem sobre os detalhes */
-        overflow-y: auto; /* Adiciona rolagem ao corpo do modal se necessário */
+        flex-direction: column;
+        overflow-y: auto; /* ADICIONADO AQUI para a rolagem no mobile */
     }
     .modal-image-container, .modal-image {
         width: 100%;
@@ -334,10 +279,10 @@
     }
     .modal-image img {
         max-height: 300px;
-        object-fit: contain; /* Garante que a imagem inteira apareça, sem cortar */
+        object-fit: contain;
     }
     .edit-form-grid {
-        grid-template-columns: 1fr; /* Uma coluna no formulário de edição */
+        grid-template-columns: 1fr;
     }
     .modal-details {
         overflow-y: visible; /* Remove a rolagem interna dos detalhes no mobile */
