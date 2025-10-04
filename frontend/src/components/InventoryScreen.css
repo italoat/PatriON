@@ -45,7 +45,7 @@
     padding: 2rem;
     border-radius: 8px;
     width: 90%;
-    max-width: 500px;
+    max-width: 500px; /* Garante que ele seja compacto no desktop */
     outline: none;
     text-align: center;
 }
@@ -55,7 +55,7 @@
 }
 .search-input-group {
     display: flex;
-    margin: 1.5rem 0;
+    margin: 1.5rem;
 }
 .search-input-group input {
     flex-grow: 1;
