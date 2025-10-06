@@ -17,7 +17,7 @@
     border-radius: 8px;
     border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 80%; /* Aumentado para o desktop */
+    max-width: 1100px; /* Aumentado para o desktop */
 }
 
 .form-container h1 {
@@ -100,18 +100,19 @@
     font-size: 14px;
 }
 
-.form-message.success {
-    color: #155724;
-    background-color: #d4edda;
+.form-message.success { 
+    color: #155724; 
+    background-color: #d4edda; 
     border: 1px solid #c3e6cb;
 }
 
-.form-message.error {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+.form-message.error { 
+    color: #721c24; 
+    background-color: #f8d7da; 
+    border: 1px solid #f5c6cb; 
 }
 
+/* --- Estilos do Popup de QR Code --- */
 .qr-code-modal {
     background: var(--content-bg-color);
     border: 1px solid var(--border-color);
@@ -176,6 +177,7 @@
 .modal-close-button-qr:hover {
     background-color: var(--danger-color-hover);
 }
+
 
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
