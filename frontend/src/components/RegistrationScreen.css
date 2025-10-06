@@ -18,6 +18,7 @@
     border: 1px solid var(--border-color);
     width: 100%;
     max-width: 1100px; /* Aumentado para o desktop */
+    grid-template-columns: 1fr 1fr 1fr
 }
 
 .form-container h1 {
@@ -29,7 +30,7 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
