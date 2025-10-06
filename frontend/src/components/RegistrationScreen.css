@@ -16,8 +16,8 @@
     padding: 2rem 3rem;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    width: 100%;
-    max-width: 100%; /* Aumentado para o desktop */
+    width: 1100px;
+    max-width: 1200px; /* Aumentado para o desktop */
 }
 
 .form-container h1 {
