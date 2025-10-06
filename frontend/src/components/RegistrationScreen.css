@@ -17,7 +17,7 @@
     border-radius: 8px;
     border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 1100px; /* Aumentado para o desktop */
+    max-width: 100%; /* Aumentado para o desktop */
 }
 
 .form-container h1 {
