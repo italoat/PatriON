@@ -30,7 +30,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Garante o layout de 2 colunas no desktop */
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .form-group {
@@ -39,7 +39,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1 / 0;
+    grid-column: 1 / -1;
 }
 
 .form-group label {
