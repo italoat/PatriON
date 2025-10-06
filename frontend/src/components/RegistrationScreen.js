@@ -31,19 +31,18 @@ const RegistrationScreen = () => {
     const [sectors, setSectors] = useState([]);
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
-    const [qrCodeData, setQrCodeData] = useState(null); // Estado para o popup do QR Code
+    const [qrCodeData, setQrCodeData] = useState(null);
 
     useEffect(() => {
         axios.get('https://patrion.onrender.com/api/sectors')
             .then(response => {
                 setSectors(response.data);
-                if (response.data.length > 0) {
-                    // Apenas pré-seleciona se o setor ainda não estiver definido
-                    setFormData(prevState => ({ ...prevState, setor: prevState.setor || response.data[0]._id }));
+                if (response.data.length > 0 && !formData.setor) {
+                    setFormData(prevState => ({ ...prevState, setor: response.data[0]._id }));
                 }
             })
             .catch(error => console.error("Erro ao buscar setores:", error));
-    }, []);
+    }, [formData.setor]);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -67,17 +66,22 @@ const RegistrationScreen = () => {
         e.preventDefault();
         setMessage('');
         setIsError(false);
+
         const dataToSubmit = new FormData();
         for (const key in formData) {
             dataToSubmit.append(key, formData[key]);
         }
-        if (file) { dataToSubmit.append('foto', file); }
+        if (file) {
+            dataToSubmit.append('foto', file);
+        }
 
-        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit)
+        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
         .then(response => {
             setIsError(false);
             setMessage('Item cadastrado com sucesso!');
-            setQrCodeData(response.data.item); // SALVA O ITEM RECÉM-CRIADO E ABRE O POPUP
+            setQrCodeData(response.data.item);
             setFormData(initialFormState);
             setFile(null);
             if (document.getElementById('file-input')) {
@@ -92,7 +96,6 @@ const RegistrationScreen = () => {
         });
     };
     
-    // Função para imprimir o QR Code
     const handlePrintQr = () => {
         const qrCodeElement = document.getElementById('qr-code-to-print-cadastro');
         if (qrCodeElement) {
@@ -109,7 +112,6 @@ const RegistrationScreen = () => {
             printWindow.close();
         }
     };
-
 
     return (
         <div className="registration-page">
