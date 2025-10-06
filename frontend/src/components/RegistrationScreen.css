@@ -100,6 +100,42 @@
     font-size: 14px;
 }
 
+.form-message.success { 
+    color: #155724; 
+    background-color: #d4edda; 
+    border: 1px solid #c3e6cb;
+}
+
+.form-message.error { 
+    color: #721c24; 
+    background-color: #f8d7da; 
+    border: 1px solid #f5c6cb; 
+}
+
+/* --- Media Query para Mobile --- */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .registration-content {
+        padding: 1rem 0.5rem; /* Padding geral menor */
+    }
+    .form-container {
+        padding: 2rem 1rem; /* Padding interno menor */
+    }
+    /* Deixa os campos de preenchimento menores no mobile */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px;
+        padding: 0.6rem;
+    }
+    .form-group label {
+        font-size: 14px;
+    }
+}
+
+/* Estilos para o popup do QR Code */
 .qr-code-modal {
     background: var(--content-bg-color);
     border: 1px solid var(--border-color);
@@ -163,27 +199,4 @@
 }
 .modal-close-button-qr:hover {
     background-color: var(--danger-color-hover);
-}
-
-/* --- Media Query para Mobile --- */
-@media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-    .registration-content {
-        padding: 1rem 0.5rem; /* Padding geral menor */
-    }
-    .form-container {
-        padding: 2rem 1rem; /* Padding interno menor */
-    }
-    /* Deixa os campos de preenchimento menores no mobile */
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        font-size: 14px;
-        padding: 0.6rem;
-    }
-    .form-group label {
-        font-size: 14px;
-    }
 }
