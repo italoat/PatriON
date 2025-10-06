@@ -8,7 +8,6 @@ import './RegistrationScreen.css';
 
 const RegistrationScreen = () => {
     const location = useLocation();
-    
     const initialFormState = {
         numeroPatrimonioAnterior: '',
         numeroPatrimonio: '',
@@ -29,15 +28,15 @@ const RegistrationScreen = () => {
     const [isError, setIsError] = useState(false);
 
     useEffect(() => {
-        axios.get('https://patrion.onrender.com/api/sectors')
+        axios.get(`https://patrion.onrender.com/api/sectors`)
             .then(response => {
                 setSectors(response.data);
-                if (response.data.length > 0) {
+                if (response.data.length > 0 && !formData.setor) {
                     setFormData(prevState => ({ ...prevState, setor: response.data[0]._id }));
                 }
             })
             .catch(error => console.error("Erro ao buscar setores:", error));
-    }, []);
+    }, [formData.setor]);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -70,23 +69,21 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
-        .then(response => {
-            setIsError(false);
-            setMessage('Item cadastrado com sucesso!');
-            setFormData(initialFormState);
-            setFile(null);
-            if (document.getElementById('file-input')) {
-                document.getElementById('file-input').value = '';
-            }
-        })
-        .catch(error => {
-            setIsError(true);
-            console.error('Erro ao cadastrar item:', error);
-            setMessage('Falha ao cadastrar o item. Tente novamente.');
-        });
+        axios.post(`https://patrion.onrender.com/api/inventory`, dataToSubmit)
+            .then(response => {
+                setIsError(false);
+                setMessage('Item cadastrado com sucesso!');
+                setFormData(initialFormState);
+                setFile(null);
+                if (document.getElementById('file-input')) {
+                    document.getElementById('file-input').value = '';
+                }
+            })
+            .catch(error => {
+                setIsError(true);
+                console.error('Erro ao cadastrar item:', error);
+                setMessage('Falha ao cadastrar o item. Tente novamente.');
+            });
     };
 
     return (
