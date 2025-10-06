@@ -3,11 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import Modal from 'react-modal';
+import { QRCodeSVG } from 'qrcode.react';
 import Navbar from './Navbar';
 import './RegistrationScreen.css';
 
+Modal.setAppElement('#root');
+
 const RegistrationScreen = () => {
     const location = useLocation();
+    
     const initialFormState = {
         numeroPatrimonioAnterior: '',
         numeroPatrimonio: '',
@@ -26,17 +31,19 @@ const RegistrationScreen = () => {
     const [sectors, setSectors] = useState([]);
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
+    const [qrCodeData, setQrCodeData] = useState(null); // Estado para o popup do QR Code
 
     useEffect(() => {
-        axios.get(`https://patrion.onrender.com/api/sectors`)
+        axios.get('https://patrion.onrender.com/api/sectors')
             .then(response => {
                 setSectors(response.data);
-                if (response.data.length > 0 && !formData.setor) {
-                    setFormData(prevState => ({ ...prevState, setor: response.data[0]._id }));
+                if (response.data.length > 0) {
+                    // Apenas pré-seleciona se o setor ainda não estiver definido
+                    setFormData(prevState => ({ ...prevState, setor: prevState.setor || response.data[0]._id }));
                 }
             })
             .catch(error => console.error("Erro ao buscar setores:", error));
-    }, [formData.setor]);
+    }, []);
 
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -60,31 +67,49 @@ const RegistrationScreen = () => {
         e.preventDefault();
         setMessage('');
         setIsError(false);
-
         const dataToSubmit = new FormData();
         for (const key in formData) {
             dataToSubmit.append(key, formData[key]);
         }
-        if (file) {
-            dataToSubmit.append('foto', file);
-        }
+        if (file) { dataToSubmit.append('foto', file); }
 
-        axios.post(`https://patrion.onrender.com/api/inventory`, dataToSubmit)
-            .then(response => {
-                setIsError(false);
-                setMessage('Item cadastrado com sucesso!');
-                setFormData(initialFormState);
-                setFile(null);
-                if (document.getElementById('file-input')) {
-                    document.getElementById('file-input').value = '';
-                }
-            })
-            .catch(error => {
-                setIsError(true);
-                console.error('Erro ao cadastrar item:', error);
-                setMessage('Falha ao cadastrar o item. Tente novamente.');
-            });
+        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit)
+        .then(response => {
+            setIsError(false);
+            setMessage('Item cadastrado com sucesso!');
+            setQrCodeData(response.data.item); // SALVA O ITEM RECÉM-CRIADO E ABRE O POPUP
+            setFormData(initialFormState);
+            setFile(null);
+            if (document.getElementById('file-input')) {
+                document.getElementById('file-input').value = '';
+            }
+        })
+        .catch(error => {
+            setIsError(true);
+            const errorMessage = error.response?.data?.message || 'Falha ao cadastrar o item. Tente novamente.';
+            setMessage(errorMessage);
+            console.error('Erro ao cadastrar o item:', error);
+        });
     };
+    
+    // Função para imprimir o QR Code
+    const handlePrintQr = () => {
+        const qrCodeElement = document.getElementById('qr-code-to-print-cadastro');
+        if (qrCodeElement) {
+            const printableContent = qrCodeElement.cloneNode(true);
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Imprimir QR Code</title>');
+            printWindow.document.write('<style>body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; font-family: sans-serif; } svg { width: 80%; height: auto; } h2, p { color: black; } </style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.body.appendChild(printableContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+    };
+
 
     return (
         <div className="registration-page">
@@ -151,9 +176,31 @@ const RegistrationScreen = () => {
                         </div>
                         <button type="submit" className="submit-button">Cadastrar Item</button>
                     </form>
-                    {message && <p className={`form-message ${isError ? 'error' : 'success'}`}>{message}</p>}
+                    {isError && message && <p className="form-message error">{message}</p>}
                 </div>
             </main>
+
+            <Modal isOpen={!!qrCodeData} onRequestClose={() => setQrCodeData(null)} className="qr-code-modal" overlayClassName="modal-overlay">
+                {qrCodeData && (
+                    <>
+                        <div id="qr-code-to-print-cadastro">
+                            <h2>{qrCodeData.descricao}</h2>
+                            <p>Patrimônio: {qrCodeData.numeroPatrimonio}</p>
+                            <div className="qr-code-container">
+                                <QRCodeSVG 
+                                    value={qrCodeData.numeroPatrimonio} 
+                                    size={256}
+                                    includeMargin={true}
+                                />
+                            </div>
+                        </div>
+                        <div className="qr-modal-buttons">
+                            <button onClick={handlePrintQr} className="qr-print-button">Imprimir</button>
+                            <button onClick={() => setQrCodeData(null)} className="modal-close-button-qr">Fechar</button>
+                        </div>
+                    </>
+                )}
+            </Modal>
         </div>
     );
 };

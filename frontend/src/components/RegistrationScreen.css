@@ -100,6 +100,71 @@
     font-size: 14px;
 }
 
+.qr-code-modal {
+    background: var(--content-bg-color);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    outline: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qr-code-modal h2 {
+    margin-top: 0;
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+}
+
+.qr-code-modal p {
+    margin: 0;
+    color: var(--secondary-text-color);
+}
+
+.qr-code-container {
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+.qr-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.qr-print-button, .modal-close-button-qr {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+.qr-print-button {
+    background-color: var(--accent-color);
+}
+.qr-print-button:hover {
+    background-color: var(--accent-color-hover);
+}
+.modal-close-button-qr {
+    background-color: var(--danger-color);
+}
+.modal-close-button-qr:hover {
+    background-color: var(--danger-color-hover);
+}
+
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
     .form-grid {

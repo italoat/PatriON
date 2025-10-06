@@ -73,7 +73,7 @@ const InventoryScreen = () => {
         setEditableData(null);
         setIsEditMode(false);
         setNewFile(null);
-        setIsQrModalOpen(false);
+        setIsQrModalOpen(false); // Garante que o modal do QR feche também
     };
 
     const handleEditChange = (e) => {
@@ -141,6 +141,23 @@ const InventoryScreen = () => {
     const handleScanSuccess = (decodedText) => {
         setSearchPatrimonio(decodedText);
         setIsScannerOpen(false);
+    };
+
+    const handlePrintQr = () => {
+        const qrCodeElement = document.getElementById('qr-code-to-print');
+        if (qrCodeElement) {
+            const printableContent = qrCodeElement.cloneNode(true);
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Imprimir QR Code</title>');
+            printWindow.document.write('<style>body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; font-family: sans-serif; } svg { width: 80%; height: auto; } </style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.body.appendChild(printableContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
     };
 
     if (loading) { return <div><Navbar /><p className="loading-message">Carregando...</p></div>; }
@@ -309,16 +326,21 @@ const InventoryScreen = () => {
             <Modal isOpen={isQrModalOpen} onRequestClose={() => setIsQrModalOpen(false)} className="qr-code-modal" overlayClassName="modal-overlay">
                 {selectedItem && (
                     <>
-                        <h2>QR Code para: {selectedItem.descricao}</h2>
-                        <p>Patrimônio: {selectedItem.numeroPatrimonio}</p>
-                        <div className="qr-code-container">
-                            <QRCodeSVG 
-                                value={selectedItem.numeroPatrimonio} 
-                                size={256}
-                                includeMargin={true}
-                            />
+                        <div id="qr-code-to-print">
+                            <h2>{selectedItem.descricao}</h2>
+                            <p>Patrimônio: {selectedItem.numeroPatrimonio}</p>
+                            <div className="qr-code-container">
+                                <QRCodeSVG 
+                                    value={selectedItem.numeroPatrimonio} 
+                                    size={256}
+                                    includeMargin={true}
+                                />
+                            </div>
                         </div>
-                        <button onClick={() => setIsQrModalOpen(false)} className="modal-close-button-qr">Fechar</button>
+                        <div className="qr-modal-buttons">
+                            <button onClick={handlePrintQr} className="qr-print-button">Imprimir</button>
+                            <button onClick={() => setIsQrModalOpen(false)} className="modal-close-button-qr">Fechar</button>
+                        </div>
                     </>
                 )}
             </Modal>
