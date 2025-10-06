@@ -31,25 +31,36 @@
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.pdf-button:hover { opacity: 0.9; }
-.pdf-button:disabled { background-color: #555; cursor: not-allowed; }
+.pdf-button:hover { 
+    opacity: 0.9; 
+}
+.pdf-button:disabled { 
+    background-color: #555; 
+    cursor: not-allowed; 
+}
 
 body.pdf-generating { background-image: none !important; background-color: white !important; }
 body.pdf-generating #dashboard-report { margin-top: 2rem; }
 body.pdf-generating .dashboard-title,
 body.pdf-generating .chart-card h3,
-body.pdf-generating .table-header h2,
-body.pdf-generating .inventory-table th,
-body.pdf-generating .inventory-table td { 
-    color: #333; 
+body.pdf-generating .table-header h2 { 
+    color: #001f5c; 
 }
-body.pdf-generating .chart-card,
+/* Estilos para o PDF não quebrar as cores da tabela */
 body.pdf-generating .table-container {
     background-color: #ffffff;
     border: 1px solid #ddd;
 }
 body.pdf-generating .inventory-table thead {
     background-color: #f2f2f2;
+}
+body.pdf-generating .inventory-table th,
+body.pdf-generating .inventory-table td {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+body.pdf-generating .inventory-table tbody tr:hover {
+    background-color: transparent;
 }
 
 
@@ -99,9 +110,14 @@ body.pdf-generating .inventory-table thead {
     overflow-x: auto; 
 }
 .inventory-table { width: 100%; border-collapse: collapse; }
-.inventory-table thead { background-color: #1a202c; }
+.inventory-table thead { background-color: #1a2c42; /* Fundo um pouco mais escuro que o card */ }
 .inventory-table th { color: var(--primary-text-color); }
-.inventory-table th, .inventory-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+.inventory-table th, .inventory-table td { 
+    padding: 1rem 1.5rem; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-color); 
+    color: var(--secondary-text-color); /* Cor do texto das células */
+}
 .inventory-table tbody tr { transition: background-color 0.2s ease-in-out; }
 .inventory-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
 
