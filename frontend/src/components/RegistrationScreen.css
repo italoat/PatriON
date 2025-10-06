@@ -17,8 +17,7 @@
     border-radius: 8px;
     border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 1100px; /* Aumentado para o desktop */
-    grid-template-columns: 1fr 1fr 1fr
+    max-width: 1400px; /* Aumentado para garantir que fique largo */
 }
 
 .form-container h1 {
@@ -28,9 +27,10 @@
     font-size: 2rem;
 }
 
+/* REGRA PADRÃO PARA DESKTOP: TRÊS COLUNAS */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr; 
     gap: 1.5rem;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; /* Ocupa todas as colunas disponíveis */
 }
 
 .form-group label {
@@ -113,7 +113,7 @@
     border: 1px solid #f5c6cb; 
 }
 
-/* --- Estilos do Popup de QR Code --- */
+/* Estilos para o popup de QR Code (garantindo que estejam completos) */
 .qr-code-modal {
     background: var(--content-bg-color);
     border: 1px solid var(--border-color);
@@ -128,68 +128,35 @@
     align-items: center;
     gap: 1rem;
 }
-
-.qr-code-modal h2 {
-    margin-top: 0;
-    color: var(--primary-text-color);
-    font-size: 1.2rem;
-}
-
-.qr-code-modal p {
-    margin: 0;
-    color: var(--secondary-text-color);
-}
-
-.qr-code-container {
-    padding: 1rem;
-    background-color: white;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    margin-top: 1rem;
-}
-
-.qr-modal-buttons {
-    display: flex;
-    gap: 1rem;
-    width: 100%;
-    margin-top: 1.5rem;
-}
-
-.qr-print-button, .modal-close-button-qr {
-    width: 100%;
-    border: none;
-    border-radius: 5px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    color: white;
-}
-
-.qr-print-button {
-    background-color: var(--accent-color);
-}
-.qr-print-button:hover {
-    background-color: var(--accent-color-hover);
-}
-.modal-close-button-qr {
-    background-color: var(--danger-color);
-}
-.modal-close-button-qr:hover {
-    background-color: var(--danger-color-hover);
-}
+.qr-code-modal h2 { margin-top: 0; color: var(--primary-text-color); font-size: 1.2rem; }
+.qr-code-modal p { margin: 0; color: var(--secondary-text-color); }
+.qr-code-container { padding: 1rem; background-color: white; border: 1px solid var(--border-color); border-radius: 4px; margin-top: 1rem; }
+.qr-modal-buttons { display: flex; gap: 1rem; width: 100%; margin-top: 1.5rem; }
+.qr-print-button, .modal-close-button-qr { width: 100%; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; color: white; }
+.qr-print-button { background-color: var(--accent-color); }
+.qr-print-button:hover { background-color: var(--accent-color-hover); }
+.modal-close-button-qr { background-color: var(--danger-color); }
+.modal-close-button-qr:hover { background-color: var(--danger-color-hover); }
 
 
 /* --- Media Query para Mobile --- */
+@media (max-width: 992px) {
+    /* Em tablets, volta para 2 colunas */
+    .form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Em celulares, muda para uma coluna só */
     .form-grid {
         grid-template-columns: 1fr;
     }
     .registration-content {
-        padding: 1rem 0.5rem; /* Padding geral menor */
+        padding: 1rem 0.5rem;
     }
     .form-container {
-        padding: 2rem 1rem; /* Padding interno menor */
+        padding: 2rem 1rem;
     }
     .form-group input,
     .form-group select,
@@ -201,4 +168,3 @@
         font-size: 14px;
     }
 }
-
