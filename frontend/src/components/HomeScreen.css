@@ -1,16 +1,36 @@
 /* frontend/src/components/HomeScreen.css */
+
 .home-container {
-    /* background-color: #f0f4ff; REMOVER OU COMENTAR */ /* Fundo claro para a área de conteúdo */
     min-height: 100vh;
-    padding-top: 90px; /* ANTES: 0. Adiciona a margem para a navbar fixa */
+    padding-top: 90px; /* Margem para a navbar fixa */
 }
 
 .content {
     padding: 40px;
-    text-align: left;
+    text-align: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .content h1 {
-    color: #001f5c;
+    color: var(--primary-text-color); /* Usa a cor de texto principal do tema */
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.content p {
+    color: var(--secondary-text-color); /* Usa a cor de texto secundária */
+    font-size: 1.2rem;
+}
+
+/* --- Media Query para Mobile --- */
+@media (max-width: 768px) {
+    .content {
+        padding: 2rem 1rem;
+    }
+    .content h1 {
+        font-size: 2rem;
+    }
+    .content p {
+        font-size: 1rem;
+    }
 }
