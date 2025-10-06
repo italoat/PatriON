@@ -1,40 +1,22 @@
 /* frontend/src/components/LoginScreen.css */
 
-.login-page {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    background-color: #0f1d6a; /* Cor de fundo aproximada */
-    background-image: url('../assets/background-pattern.png'); /* Crie ou baixe um padrão similar */
-    background-repeat: repeat;
-    background-size: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/background-network.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.1; /* Deixa a imagem bem sutil */
+  z-index: 1;
 }
 
-.login-container {
-    position: relative;
-    width: 800px;
-    height: 500px;
-    background-color: #001f5c; /* Cor do arco */
-    border-radius: 100% / 100%; /* Cria a forma de arco */
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    transform: scaleX(1.5); /* Estica o arco horizontalmente para corresponder à imagem */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-.login-content {
-    transform: scaleX(calc(1 / 1.5)); /* Desfaz a distorção para o conteúdo interno */
-    width: 450px;
-    text-align: center;
+.login-container, .login-content {
+    background-color: transparent; /* Remove o fundo azul antigo */
+    z-index: 2; /* Garante que o conteúdo fique sobre a imagem */
 }
 
 /* --- ESTILOS PARA A LOGO --- */

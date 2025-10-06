@@ -50,7 +50,7 @@ const DashboardScreen = () => {
     const valueChartRef = useRef();
 
     useEffect(() => {
-        axios.get('https://patrion.onrender.com/api/sectors')
+        axios.get(`https://patrion.onrender.com/api/sectors`)
             .then(response => setSectors(response.data))
             .catch(error => console.error("Erro ao buscar setores:", error));
     }, []);

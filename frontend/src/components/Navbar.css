@@ -3,29 +3,94 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #001f5c;
-    color: white;
+    background-color: var(--content-bg-color); /* Usa a cor de fundo de conteúdo */
+    color: var(--primary-text-color);
     padding: 0 2rem;
     height: 70px;
-    position: fixed; /* Fixa a barra no topo */
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000; /* Garante que fique sobre o outro conteúdo */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color); /* Adiciona uma linha sutil de separação */
 }
-.navbar-brand { display: flex; align-items: center; }
-.logo_barra { height: 40px; }
-.nav-links-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-.nav-links { display: flex; list-style: none; margin: 0; padding: 0; gap: 1rem; }
-.nav-links a { color: #a9bce2; text-decoration: none; padding: 0 1rem; font-weight: 500; transition: color 0.3s ease; }
-.nav-links a:hover, .nav-links a.active { color: white; }
-.user-section { display: flex; align-items: center; gap: 1rem; }
-.user-info { color: #e0e0e0; font-size: 0.9rem; text-transform: capitalize; white-space: nowrap; }
-.logout-button { background-color: #f44336; color: white; border: none; border-radius: 5px; padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
-.hamburger { display: none; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
 
-/* --- Media Query para Mobile (largura <= 992px) --- */
+.navbar-brand { 
+    display: flex; 
+    align-items: center; 
+}
+
+.logo_barra { 
+    height: 40px; 
+}
+
+.nav-links-container { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%; 
+}
+
+.nav-links { 
+    display: flex; 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+    gap: 1rem; 
+}
+
+.nav-links a { 
+    color: var(--secondary-text-color); /* Cor mais suave para links inativos */
+    text-decoration: none; 
+    padding: 0 1rem; 
+    font-weight: 500; 
+    transition: color 0.3s ease; 
+}
+
+.nav-links a:hover, 
+.nav-links a.active { 
+    color: var(--primary-text-color); /* Cor mais forte para links ativos/hover */
+}
+
+.user-section { 
+    display: flex; 
+    align-items: center; 
+    gap: 1rem; 
+}
+
+.user-info { 
+    color: var(--secondary-text-color); 
+    font-size: 0.9rem; 
+    text-transform: capitalize; 
+    white-space: nowrap; 
+}
+
+.logout-button { 
+    background-color: var(--danger-color); 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    padding: 0.6rem 1rem; 
+    font-size: 0.9rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+    background-color: var(--danger-color-hover);
+}
+
+.hamburger { 
+    display: none; 
+    background: none; 
+    border: none; 
+    color: var(--primary-text-color); 
+    font-size: 2rem; 
+    cursor: pointer; 
+}
+
+/* --- Media Query para Mobile --- */
 @media (max-width: 992px) {
     .navbar { padding: 0 1rem; }
     .hamburger { display: block; }
@@ -34,7 +99,7 @@
         top: 70px;
         left: 0;
         width: 100%;
-        background-color: #002c8a;
+        background-color: var(--content-bg-color);
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem 0;
@@ -42,10 +107,14 @@
         overflow: hidden;
         transition: max-height 0.3s ease-out;
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        border-bottom: 1px solid var(--border-color);
     }
     .nav-links-container.active { max-height: 500px; }
     .nav-links { flex-direction: column; width: 100%; gap: 0; }
     .nav-links a { padding: 1rem 2rem; width: 100%; display: block; border-left: 3px solid transparent; }
-    .nav-links a.active { border-left-color: #3c77e7; background-color: rgba(0,0,0,0.1); }
+    .nav-links a.active { 
+        border-left-color: var(--accent-color); 
+        background-color: rgba(0,0,0,0.1); 
+    }
     .user-section { flex-direction: column; align-items: flex-start; width: 100%; padding: 1rem 2rem; gap: 1rem; }
 }
