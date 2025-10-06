@@ -129,7 +129,7 @@ const RegistrationScreen = () => {
                                 <label>Nº Patrimônio</label>
                                 <input type="text" name="numeroPatrimonio" value={formData.numeroPatrimonio} onChange={handleChange} required />
                             </div>
-                            <div className="form-group">
+                            <div className="form-group full-width">
                                 <label>Descrição do Bem</label>
                                 <input type="text" name="descricao" value={formData.descricao} onChange={handleChange} required />
                             </div>
@@ -178,7 +178,7 @@ const RegistrationScreen = () => {
                         </div>
                         <button type="submit" className="submit-button">Cadastrar Item</button>
                     </form>
-                    {isError && message && <p className="form-message error">{message}</p>}
+                    {isError && message && <p className={`form-message ${isError ? 'error' : 'success'}`}>{message}</p>}
                 </div>
             </main>
 
@@ -208,4 +208,3 @@ const RegistrationScreen = () => {
 };
 
 export default RegistrationScreen;
-

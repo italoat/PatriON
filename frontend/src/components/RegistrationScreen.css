@@ -17,7 +17,7 @@
     border-radius: 8px;
     border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 1400px; /* Aumentado para garantir que fique largo */
+    max-width: 1200px; /* Aumentado para garantir que o grid fique largo */
 }
 
 .form-container h1 {
@@ -27,11 +27,10 @@
     font-size: 2rem;
 }
 
-/* REGRA PADRÃO PARA DESKTOP: TRÊS COLUNAS */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 1.5rem;
+    grid-template-columns: 1fr 1fr; /* Garante o layout de 2 colunas no desktop */
+    gap: 2rem;
 }
 
 .form-group {
@@ -40,7 +39,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1; /* Ocupa todas as colunas disponíveis */
+    grid-column: 1 / 0;
 }
 
 .form-group label {
@@ -113,7 +112,7 @@
     border: 1px solid #f5c6cb; 
 }
 
-/* Estilos para o popup de QR Code (garantindo que estejam completos) */
+/* --- Estilos do Popup de QR Code --- */
 .qr-code-modal {
     background: var(--content-bg-color);
     border: 1px solid var(--border-color);
@@ -140,15 +139,7 @@
 
 
 /* --- Media Query para Mobile --- */
-@media (max-width: 992px) {
-    /* Em tablets, volta para 2 colunas */
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
 @media (max-width: 768px) {
-    /* Em celulares, muda para uma coluna só */
     .form-grid {
         grid-template-columns: 1fr;
     }
