@@ -31,13 +31,8 @@
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.pdf-button:hover { 
-    opacity: 0.9; 
-}
-.pdf-button:disabled { 
-    background-color: #555; 
-    cursor: not-allowed; 
-}
+.pdf-button:hover { opacity: 0.9; }
+.pdf-button:disabled { background-color: #555; cursor: not-allowed; }
 
 body.pdf-generating { background-image: none !important; background-color: white !important; }
 body.pdf-generating #dashboard-report { margin-top: 2rem; }
@@ -46,7 +41,7 @@ body.pdf-generating .chart-card h3,
 body.pdf-generating .table-header h2 { 
     color: #001f5c; 
 }
-/* Estilos para o PDF não quebrar as cores da tabela */
+body.pdf-generating .chart-card,
 body.pdf-generating .table-container {
     background-color: #ffffff;
     border: 1px solid #ddd;

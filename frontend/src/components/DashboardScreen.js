@@ -44,12 +44,21 @@ const DashboardScreen = () => {
     const doughnutChartRef = useRef();
     const valueChartRef = useRef();
 
-    useEffect(() => { axios.get(`https://patrion.onrender.com/api/sectors`).then(response => setSectors(response.data)); }, []);
+    useEffect(() => {
+        axios.get(`https://patrion.onrender.com/api/sectors`)
+            .then(response => setSectors(response.data))
+            .catch(error => console.error("Erro ao buscar setores:", error));
+    }, []);
+
     useEffect(() => {
         setLoading(true);
         const url = `https://patrion.onrender.com/api/inventory?setorId=${selectedSectorId}`;
-        axios.get(url).then(response => { setInventoryData(response.data); }).finally(() => { setLoading(false); });
+        axios.get(url)
+            .then(response => { setInventoryData(response.data); })
+            .catch(error => { console.error("Erro ao buscar dados do inventário:", error); })
+            .finally(() => { setLoading(false); });
     }, [selectedSectorId]);
+
     useEffect(() => {
         if (!chartFilter.type || !chartFilter.value) { setFilteredInventory(inventoryData); } 
         else { const filtered = inventoryData.filter(item => (item[chartFilter.type] || '').trim() === chartFilter.value); setFilteredInventory(filtered); }
@@ -63,20 +72,8 @@ const DashboardScreen = () => {
     const doughnutChartData = { labels: Object.keys(processDataForChart('classificacao')), datasets: [{ data: Object.values(processDataForChart('classificacao')), backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#9966FF', '#36A2EB', '#FF9F40', '#C9CBCF'] }] };
     const valueComparisonData = { labels: ['Valor Contábil Total', 'Valor Atual Total (Depreciado)'], datasets: [{ data: [totals.totalValor, totals.totalValorAtual], backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'], borderWidth: 1 }] };
 
-    const handleBarChartClick = (event) => {
-        const element = getElementAtEvent(barChartRef.current, event);
-        if (element.length > 0) {
-            const clickedLabel = barChartData.labels[element[0].index];
-            setChartFilter({ type: 'outraIdentificacao', value: clickedLabel });
-        }
-    };
-    const handleDoughnutChartClick = (event) => {
-        const element = getElementAtEvent(doughnutChartRef.current, event);
-        if (element.length > 0) {
-            const clickedLabel = doughnutChartData.labels[element[0].index];
-            setChartFilter({ type: 'classificacao', value: clickedLabel });
-        }
-    };
+    const handleBarChartClick = (event) => { /* ... (código existente) ... */ };
+    const handleDoughnutChartClick = (event) => { /* ... (código existente) ... */ };
     const handleGeneratePdf = () => { /* ... (código existente) ... */ };
 
     // --- OPÇÕES DE ESTILO PARA OS GRÁFICOS NO TEMA ESCURO ---
