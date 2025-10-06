@@ -1,43 +1,54 @@
 /* frontend/src/components/LoginScreen.css */
 
+.login-page {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Sobreposição para a imagem de fundo, deixando-a sutil */
 .login-page::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('../assets/background-network.png');
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('../assets/background-network.png'); /* Sua imagem de fundo */
   background-size: cover;
   background-position: center;
-  opacity: 0.1; /* Deixa a imagem bem sutil */
+  opacity: 0.05; /* Deixa a imagem de fundo bem escura */
   z-index: 1;
 }
 
-.login-container, .login-content {
-    background-color: transparent; /* Remove o fundo azul antigo */
-    z-index: 2; /* Garante que o conteúdo fique sobre a imagem */
+.login-container {
+    background-color: var(--content-bg-color);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+    z-index: 2; /* Garante que o conteúdo fique sobre a imagem de fundo */
+    border: 1px solid var(--border-color);
 }
 
-/* --- ESTILOS PARA A LOGO --- */
+.login-content {
+    text-align: center;
+}
+
 .login-logo {
-    width: 100px; /* Ajuste a largura conforme necessário */
-    height: auto; /* Mantém a proporção da imagem */
-    margin-bottom: 0px; /* Espaçamento entre a logo e o subtítulo */
-}
-
-.login-content h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    margin-bottom: 1px;
-    letter-spacing: 2px;
+    width: 200px;
+    height: auto;
+    margin-bottom: 1rem;
 }
 
 .login-content p {
     font-size: 1rem;
-    color: #a9bce2;
-    margin-bottom: 20px;
-    margin-top: 1px;
+    color: var(--secondary-text-color);
+    margin-bottom: 2rem;
 }
 
 .login-form {
@@ -46,7 +57,7 @@
 
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .input-group i {
@@ -54,18 +65,23 @@
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #889ac4;
+    color: var(--secondary-text-color);
 }
 
 .input-field {
     width: 100%;
-    padding: 15px 15px 15px 45px; /* Espaço para o ícone */
-    border: none;
+    padding: 15px 15px 15px 45px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background-color: #f0f4ff;
+    background-color: var(--background-color);
     font-size: 1rem;
-    color: #333;
+    color: var(--primary-text-color);
     box-sizing: border-box;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent-color);
 }
 
 .login-button {
@@ -73,28 +89,34 @@
     padding: 15px;
     border: none;
     border-radius: 8px;
-    background-color: #3c77e7;
+    background-color: var(--accent-color);
     color: white;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .login-button:hover {
-    background-color: #2a5fcc;
+    background-color: var(--accent-color-hover);
+}
+
+.login-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
 }
 
 .options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 15px;
-    font-size: 0.875rem;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
 }
 
 .options a {
-    color: #a9bce2;
+    color: var(--accent-color);
     text-decoration: none;
 }
 
@@ -106,5 +128,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #a9bce2;
+}
+
+.login-error-message {
+    color: var(--danger-color);
+    margin-top: 1rem;
+    font-weight: bold;
 }

@@ -1,8 +1,8 @@
 // frontend/src/components/LoginScreen.js
 
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom'; // 1. GARANTA QUE 'Link' ESTÁ SENDO IMPORTADO AQUI
 import './LoginScreen.css';
 import logo from '../assets/logo.png'; 
 
@@ -19,7 +19,7 @@ const LoginScreen = () => {
         setError('');
 
         try {
-            const response = await axios.post('https://patrion.onrender.com/api/login', {
+            const response = await axios.post(`https://patrion.onrender.com/api/login`, {
                 email,
                 password,
             });
@@ -60,7 +60,7 @@ const LoginScreen = () => {
                             <input
                                 type="password"
                                 className="input-field"
-                                placeholder="Password"
+                                placeholder="Senha"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
@@ -71,14 +71,13 @@ const LoginScreen = () => {
                             {loading ? 'Entrando...' : 'Login'}
                         </button>
 
-                        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+                        {error && <p className="login-error-message">{error}</p>}
                         
                         <div className="options">
                             <label className="remember-me">
                                 <input type="checkbox" />
                                 Salvar Acesso
                             </label>
-                            {/* 2. GARANTA QUE VOCÊ ESTÁ USANDO <Link> AQUI */}
                             <Link to="/forgot-password">Esqueceu sua senha?</Link>
                         </div>
                     </form>
