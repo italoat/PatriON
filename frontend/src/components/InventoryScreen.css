@@ -208,13 +208,13 @@
 .modal-details textarea.modal-input { min-height: 80px; resize: vertical; }
 
 .modal-footer { 
-    margin-top: auto; 
+    margin-top: 1.5rem; /* Separado do corpo para sempre ser visível */
     padding-top: 1rem; 
     border-top: 1px solid var(--border-color); 
     display: flex; 
     justify-content: flex-end; 
     gap: 0.5rem; 
-    flex-shrink: 0;
+    flex-shrink: 0; /* Impede que o rodapé encolha */
 }
 
 .modal-edit-button { background-color: var(--accent-color); }
@@ -282,40 +282,30 @@
 
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .inventory-content { 
-        padding: 1rem; 
-    }
-    .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .inventory-table {
-        min-width: 600px;
-    }
+    .inventory-content { padding: 1rem; }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .inventory-table { min-width: 600px; }
+    
     .modal-content {
-        padding: 1.5rem 1rem;
+        padding: 1rem;
         max-height: 95vh;
         width: 95vw;
         max-width: 95vw;
     }
+    
     .modal-body {
-        flex-direction: column;
+        flex-direction: column; /* Empilha imagem e detalhes */
     }
-    .modal-image-container, .modal-image {
-        width: 100%;
-        height: auto;
-    }
-    .modal-image img {
-        max-height: 250px;
-        object-fit: contain;
-    }
-    .edit-form-grid {
-        grid-template-columns: 1fr;
-    }
+    
+    .modal-image-container, .modal-image { width: 100%; height: auto; }
+    .modal-image img { max-height: 250px; object-fit: contain; }
+    .edit-form-grid { grid-template-columns: 1fr; }
+
+    /* CORREÇÃO DA ROLAGEM */
     .modal-details {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
+        flex: 1; /* Permite que a área de detalhes cresça */
+        min-height: 0; /* Garante que a rolagem funcione dentro do flexbox */
+        overflow-y: auto;   /* A rolagem agora acontece APENAS na área dos detalhes */
         padding-right: 0.5rem;
     }
 }
