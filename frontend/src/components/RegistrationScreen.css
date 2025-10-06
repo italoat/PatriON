@@ -13,7 +13,7 @@
 
 .form-container {
     background-color: var(--content-bg-color);
-    padding: 2rem;
+    padding: 2rem 3rem;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     width: 100%;
@@ -40,7 +40,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1; /* Ocupa todas as colunas disponíveis */
+    grid-column: 1 / -1; /* Ocupa todas as colunas disponíveis */
 }
 
 .form-group label {

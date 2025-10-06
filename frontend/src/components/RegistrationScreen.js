@@ -34,7 +34,7 @@ const RegistrationScreen = () => {
     const [qrCodeData, setQrCodeData] = useState(null);
 
     useEffect(() => {
-        axios.get(`https://patrion.onrender.com/api/sectors`)
+        axios.get('https://patrion.onrender.com/api/sectors')
             .then(response => {
                 setSectors(response.data);
                 if (response.data.length > 0 && !formData.setor) {
@@ -75,7 +75,7 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post(`https://patrion.onrender.com/api/inventory`, dataToSubmit, {
+        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
         .then(response => {
@@ -129,7 +129,7 @@ const RegistrationScreen = () => {
                                 <label>Nº Patrimônio</label>
                                 <input type="text" name="numeroPatrimonio" value={formData.numeroPatrimonio} onChange={handleChange} required />
                             </div>
-                            <div className="form-group full-width">
+                            <div className="form-group">
                                 <label>Descrição do Bem</label>
                                 <input type="text" name="descricao" value={formData.descricao} onChange={handleChange} required />
                             </div>
@@ -208,3 +208,4 @@ const RegistrationScreen = () => {
 };
 
 export default RegistrationScreen;
+
