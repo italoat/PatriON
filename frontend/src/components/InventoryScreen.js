@@ -1,6 +1,6 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO FINAL E COMPLETA)
+// frontend/src/components/InventoryScreen.js
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -29,6 +29,20 @@ const formatCurrency = (value) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
+// --- HOOK PARA OBSERVAR O TAMANHO DA JANELA ---
+function useWindowSize() {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return { width: size[0], height: size[1] };
+}
+
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,12 +52,18 @@ const InventoryScreen = () => {
     const [allSectors, setAllSectors] = useState([]);
     const [newFile, setNewFile] = useState(null);
     
-    // Estados para a Busca e Geração de QR Code
+    // Estados para a Busca e QR Code
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [searchPatrimonio, setSearchPatrimonio] = useState('');
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const navigate = useNavigate();
+    
+    // --- Novos Estados para a Visualização de Imagem no Mobile ---
+    const { width } = useWindowSize();
+    const isMobile = width <= 768;
+    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+
 
     useEffect(() => {
         axios.get('https://patrion.onrender.com/api/sectors').then(res => setAllSectors(res.data));
@@ -73,7 +93,7 @@ const InventoryScreen = () => {
         setEditableData(null);
         setIsEditMode(false);
         setNewFile(null);
-        setIsQrModalOpen(false); // Garante que o modal do QR feche também
+        setIsQrModalOpen(false);
     };
 
     const handleEditChange = (e) => {
@@ -149,7 +169,7 @@ const InventoryScreen = () => {
             const printableContent = qrCodeElement.cloneNode(true);
             const printWindow = window.open('', '', 'height=600,width=800');
             printWindow.document.write('<html><head><title>Imprimir QR Code</title>');
-            printWindow.document.write('<style>body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; font-family: sans-serif; } svg { width: 80%; height: auto; } </style>');
+            printWindow.document.write('<style>body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; font-family: sans-serif; } svg { width: 80%; height: auto; } h2, p { color: black; } </style>');
             printWindow.document.write('</head><body>');
             printWindow.document.body.appendChild(printableContent);
             printWindow.document.write('</body></html>');
@@ -199,19 +219,31 @@ const InventoryScreen = () => {
                     <div>
                         <button type="button" onClick={closeModal} className="modal-close-button">&times;</button>
                         <div className="modal-body">
-                            <div className="modal-image-container">
-                                <div className="modal-image">
-                                    <img src={newFile ? URL.createObjectURL(newFile) : (selectedItem.foto || `https://via.placeholder.com/354x472.png?text=Sem+Imagem`)} alt={selectedItem.descricao} />
-                                </div>
-                                {isEditMode && (
-                                    <div className="form-group-grid image-upload-area">
-                                        <label>Substituir Imagem:</label>
-                                        <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
+                            {/* --- LÓGICA CONDICIONAL PARA A IMAGEM --- */}
+                            {!isMobile && (
+                                <div className="modal-image-container">
+                                    <div className="modal-image">
+                                        <img src={newFile ? URL.createObjectURL(newFile) : (selectedItem.foto || `https://via.placeholder.com/354x472.png?text=Sem+Imagem`)} alt={selectedItem.descricao} />
                                     </div>
-                                )}
-                            </div>
+                                    {isEditMode && (
+                                        <div className="form-group-grid image-upload-area">
+                                            <label>Substituir Imagem:</label>
+                                            <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="modal-details">
-                                <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
+                                <div className="modal-details-header">
+                                    <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
+                                    {/* ÍCONE DE IMAGEM SÓ APARECE NO MODO DE VISUALIZAÇÃO E NO MOBILE */}
+                                    {!isEditMode && isMobile && selectedItem.foto && (
+                                        <button type="button" className="view-image-button" onClick={() => setIsImageViewerOpen(true)}>
+                                            <i className="fas fa-image"></i> Ver Imagem
+                                        </button>
+                                    )}
+                                </div>
                                 {isEditMode ? (
                                     <div className="edit-form-grid">
                                         <div className="form-group-grid">
@@ -259,6 +291,13 @@ const InventoryScreen = () => {
                                             <label>Observação:</label>
                                             <textarea className="modal-input" name="observacao" value={editableData.observacao || ''} onChange={handleEditChange}></textarea>
                                         </div>
+                                        {/* CAMPO DE UPLOAD DE IMAGEM PARA MOBILE */}
+                                        {isMobile && (
+                                            <div className="form-group-grid full-width-grid-item">
+                                                <label>Substituir Imagem:</label>
+                                                <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <ul>
@@ -344,8 +383,19 @@ const InventoryScreen = () => {
                     </>
                 )}
             </Modal>
+
+            {/* NOVO MODAL: VISUALIZADOR DE IMAGEM PARA O MOBILE */}
+            <Modal isOpen={isImageViewerOpen} onRequestClose={() => setIsImageViewerOpen(false)} className="image-viewer-modal" overlayClassName="modal-overlay">
+                {selectedItem && (
+                    <>
+                        <img src={selectedItem.foto} alt={selectedItem.descricao} />
+                        <button onClick={() => setIsImageViewerOpen(false)}>Fechar</button>
+                    </>
+                )}
+            </Modal>
         </div>
     );
 };
 
 export default InventoryScreen;
+
