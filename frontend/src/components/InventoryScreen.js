@@ -1,15 +1,17 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO FINAL COM BUSCA INTELIGENTE)
+// frontend/src/components/InventoryScreen.js (VERSÃO FINAL E COMPLETA)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
 import Navbar from './Navbar';
-import QrScanner from './QrScanner'; // Importa o componente de scanner
+import QrScanner from './QrScanner';
+import { QRCodeSVG } from 'qrcode.react';
 import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
+// --- FUNÇÕES DE FORMATAÇÃO ---
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -27,7 +29,6 @@ const formatCurrency = (value) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
-
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,11 +37,12 @@ const InventoryScreen = () => {
     const [editableData, setEditableData] = useState(null);
     const [allSectors, setAllSectors] = useState([]);
     const [newFile, setNewFile] = useState(null);
-
-    // --- Estados para a Busca Inteligente ---
+    
+    // Estados para a Busca e Geração de QR Code
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [searchPatrimonio, setSearchPatrimonio] = useState('');
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,7 +63,7 @@ const InventoryScreen = () => {
 
     const openModal = (item) => {
         setSelectedItem(item);
-        setEditableData({ ...item });
+        setEditableData({ ...item }); 
         setIsEditMode(false);
         setNewFile(null);
     };
@@ -71,6 +73,7 @@ const InventoryScreen = () => {
         setEditableData(null);
         setIsEditMode(false);
         setNewFile(null);
+        setIsQrModalOpen(false);
     };
 
     const handleEditChange = (e) => {
@@ -78,7 +81,7 @@ const InventoryScreen = () => {
         const finalValue = type === 'number' ? parseFloat(value) : value;
         setEditableData(prev => ({ ...prev, [name]: finalValue }));
     };
-
+    
     const handleFileChange = (e) => {
         setNewFile(e.target.files[0]);
     };
@@ -115,8 +118,7 @@ const InventoryScreen = () => {
             })
             .catch(error => alert('Falha ao apagar o item.'));
     }, []);
-    
-    // --- Novas Funções para a Busca ---
+
     const handleSearch = () => {
         if (!searchPatrimonio) return;
         axios.get(`https://patrion.onrender.com/api/inventory/by-patrimonio/${searchPatrimonio.trim()}`)
@@ -140,7 +142,6 @@ const InventoryScreen = () => {
         setSearchPatrimonio(decodedText);
         setIsScannerOpen(false);
     };
-
 
     if (loading) { return <div><Navbar /><p className="loading-message">Carregando...</p></div>; }
 
@@ -260,12 +261,21 @@ const InventoryScreen = () => {
                             </div>
                         </div>
                         <div className="modal-footer">
-                            {isEditMode ? (
-                                <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar Alterações</button>
-                            ) : (
-                                <button type="button" onClick={() => setIsEditMode(true)} className="modal-edit-button">Editar</button>
-                            )}
-                            <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar Item</button>
+                            <div className="footer-left">
+                                {!isEditMode && (
+                                    <button type="button" onClick={() => setIsQrModalOpen(true)} className="qr-generate-button">
+                                        <i className="fas fa-qrcode"></i> Gerar QR Code
+                                    </button>
+                                )}
+                            </div>
+                            <div className="footer-right">
+                                {isEditMode ? (
+                                    <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar Alterações</button>
+                                ) : (
+                                    <button type="button" onClick={() => setIsEditMode(true)} className="modal-edit-button">Editar</button>
+                                )}
+                                <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar Item</button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -291,10 +301,27 @@ const InventoryScreen = () => {
             {isScannerOpen && (
                 <QrScanner 
                     onScanSuccess={handleScanSuccess}
-                    onScanError={(err) => { /* Silencia erros contínuos */ }}
+                    onScanError={(err) => {}}
                     onClose={() => setIsScannerOpen(false)}
                 />
             )}
+
+            <Modal isOpen={isQrModalOpen} onRequestClose={() => setIsQrModalOpen(false)} className="qr-code-modal" overlayClassName="modal-overlay">
+                {selectedItem && (
+                    <>
+                        <h2>QR Code para: {selectedItem.descricao}</h2>
+                        <p>Patrimônio: {selectedItem.numeroPatrimonio}</p>
+                        <div className="qr-code-container">
+                            <QRCodeSVG 
+                                value={selectedItem.numeroPatrimonio} 
+                                size={256}
+                                includeMargin={true}
+                            />
+                        </div>
+                        <button onClick={() => setIsQrModalOpen(false)} className="modal-close-button-qr">Fechar</button>
+                    </>
+                )}
+            </Modal>
         </div>
     );
 };

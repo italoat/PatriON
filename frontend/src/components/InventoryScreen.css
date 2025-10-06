@@ -1,7 +1,7 @@
 /* frontend/src/components/InventoryScreen.css */
 .inventory-page { 
     min-height: 100vh;
-    padding-top: 90px;
+    padding-top: 90px; /* Margem para a navbar fixa */
 }
 
 .inventory-content { 
@@ -21,13 +21,14 @@
 }
 
 .inventory-title { 
-    color: var(--primary-text-color); 
+    text-align: center; 
+    color: #001f5c; 
     margin: 0; 
     font-size: 2.5rem; 
 }
 
 .search-button {
-    background-color: var(--accent-color);
+    background-color: #2196F3;
     color: white;
     border: none;
     border-radius: 5px;
@@ -41,13 +42,13 @@
     transition: background-color 0.2s;
 }
 .search-button:hover {
-    background-color: var(--accent-color-hover);
+    background-color: #1976D2;
 }
 
 .table-container { 
-    background-color: var(--content-bg-color); 
+    background-color: #ffffff; 
     border-radius: 8px; 
-    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     overflow: hidden; 
 }
 
@@ -57,27 +58,23 @@
 }
 
 .inventory-table thead { 
-    background-color: #1a202c; 
-}
-
-.inventory-table th {
-    color: var(--primary-text-color);
+    background-color: #001f5c; 
+    color: white; 
 }
 
 .inventory-table th, .inventory-table td { 
     padding: 1rem 1.5rem; 
     text-align: left; 
-    border-bottom: 1px solid var(--border-color);
-    color: var(--secondary-text-color);
 }
 
 .inventory-table tbody tr { 
+    border-bottom: 1px solid #e0e0e0; 
     transition: background-color 0.2s ease-in-out; 
     cursor: pointer; 
 }
 
 .inventory-table tbody tr:hover { 
-    background-color: rgba(255, 255, 255, 0.05); 
+    background-color: #e6f0fa; 
 }
 
 .loading-message { 
@@ -88,12 +85,12 @@
 
 /* --- ESTILOS DO MODAL --- */
 .modal-overlay { 
-    background-color: rgba(0, 0, 0, 0.8);
     position: fixed; 
     top: 0; 
     left: 0; 
     right: 0; 
     bottom: 0; 
+    background-color: rgba(0, 0, 0, 0.75); 
     display: flex; 
     justify-content: center; 
     align-items: center; 
@@ -101,8 +98,7 @@
 }
 
 .modal-content { 
-    background: var(--content-bg-color); 
-    border: 1px solid var(--border-color);
+    background: white; 
     padding: 2rem; 
     border-radius: 8px; 
     width: 90%; 
@@ -121,7 +117,7 @@
     border: none; 
     background: transparent; 
     font-size: 2.5rem; 
-    color: var(--secondary-text-color); 
+    color: #aaa; 
     cursor: pointer; 
     line-height: 1; 
     z-index: 10; 
@@ -156,7 +152,7 @@
     height: 100%; 
     object-fit: cover; 
     border-radius: 6px; 
-    background-color: var(--background-color); 
+    background-color: #f0f0f0; 
 }
 
 .modal-details { 
@@ -167,66 +163,65 @@
 
 .modal-details h2 { 
     margin-top: 0; 
-    color: var(--primary-text-color); 
-    border-bottom: 2px solid var(--border-color); 
+    color: #001f5c; 
+    border-bottom: 2px solid #e6f0fa; 
     padding-bottom: 0.5rem; 
 }
 
 .modal-details ul { list-style: none; padding: 0; }
-.modal-details li { 
-    padding: 0.5rem 0; 
-    border-bottom: 1px solid var(--border-color); 
-    color: var(--secondary-text-color);
-}
-.modal-details li strong {
-    color: var(--primary-text-color);
-}
-.valor-atual { font-weight: bold; color: var(--accent-color); }
+.modal-details li { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+.valor-atual { font-weight: bold; color: #001f5c; }
 .edit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; align-items: center; }
 .form-group-grid { display: flex; flex-direction: column; }
 .full-width-grid-item { grid-column: 1 / -1; }
-.modal-details label { 
-    display: block; 
-    margin-top: 0.5rem; 
-    font-weight: bold; 
-    color: var(--secondary-text-color); 
-    font-size: 14px; 
-}
+.modal-details label { display: block; margin-top: 0.5rem; font-weight: bold; color: #555; font-size: 14px; }
 .modal-details .modal-input, 
 .modal-details input, 
 .modal-details select, 
 .modal-details textarea { 
     width: 100%; 
     padding: 0.5rem; 
-    border: 1px solid var(--border-color); 
+    border: 1px solid #ccc; 
     border-radius: 4px; 
     font-size: 1rem; 
     box-sizing: border-box; 
-    background-color: var(--background-color);
-    color: var(--primary-text-color);
 }
 .modal-details textarea.modal-input { min-height: 80px; resize: vertical; }
 
 .modal-footer { 
-    margin-top: 1.5rem; /* Separado do corpo para sempre ser visível */
+    margin-top: auto; 
     padding-top: 1rem; 
-    border-top: 1px solid var(--border-color); 
+    border-top: 1px solid #eee; 
     display: flex; 
     justify-content: flex-end; 
     gap: 0.5rem; 
-    flex-shrink: 0; /* Impede que o rodapé encolha */
+    flex-shrink: 0;
 }
 
-.modal-edit-button { background-color: var(--accent-color); }
-.modal-edit-button:hover { background-color: var(--accent-color-hover); }
-.modal-save-button { background-color: var(--success-color); }
-.modal-delete-button { background-color: var(--danger-color); }
-.modal-delete-button:hover { background-color: var(--danger-color-hover); }
+.modal-edit-button, 
+.modal-save-button, 
+.modal-delete-button { 
+    border: none; 
+    border-radius: 5px; 
+    padding: 0.7rem 1.5rem; 
+    font-size: 1rem; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: background-color 0.2s; 
+    color: white; 
+}
+
+.modal-edit-button { background-color: #2196F3; }
+.modal-save-button { background-color: #4CAF50; }
+.modal-delete-button { background-color: #f44336; }
+.modal-edit-button:hover { background-color: #1976D2; }
+.modal-save-button:hover { background-color: #388E3C; }
+.modal-delete-button:hover { background-color: #d32f2f; }
+
 
 /* --- ESTILOS DO MODAL DE BUSCA --- */
 .search-modal-content {
-    background: var(--content-bg-color);
-    border: 1px solid var(--border-color);
+    background: white;
     padding: 2rem;
     border-radius: 8px;
     width: 90%;
@@ -236,7 +231,7 @@
 }
 .search-modal-content h2 {
     margin-top: 0;
-    color: var(--primary-text-color);
+    color: #001f5c;
 }
 .search-input-group {
     display: flex;
@@ -246,27 +241,25 @@
     flex-grow: 1;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ccc;
     border-radius: 6px 0 0 6px;
-    background-color: var(--background-color);
-    color: var(--primary-text-color);
 }
 .qr-button {
     padding: 0 1rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ccc;
     border-left: none;
-    background: var(--background-color);
+    background: #f0f0f0;
     cursor: pointer;
     border-radius: 0 6px 6px 0;
     font-size: 1.5rem;
-    color: var(--secondary-text-color);
+    color: #555;
     display: flex;
     align-items: center;
 }
 .search-modal-button {
     width: 100%;
     padding: 1rem;
-    background-color: var(--accent-color);
+    background-color: #001f5c;
     color: white;
     border: none;
     border-radius: 6px;
@@ -276,36 +269,46 @@
     transition: background-color 0.2s;
 }
 .search-modal-button:hover {
-    background-color: var(--accent-color-hover);
+    background-color: #003399;
 }
 
 
 /* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .inventory-content { padding: 1rem; }
-    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .inventory-table { min-width: 600px; }
-    
+    .inventory-content { 
+        padding: 1rem; 
+    }
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .inventory-table {
+        min-width: 600px;
+    }
     .modal-content {
-        padding: 1rem;
+        padding: 1.5rem 1rem;
         max-height: 95vh;
         width: 95vw;
         max-width: 95vw;
     }
-    
     .modal-body {
-        flex-direction: column; /* Empilha imagem e detalhes */
+        flex-direction: column;
     }
-    
-    .modal-image-container, .modal-image { width: 100%; height: auto; }
-    .modal-image img { max-height: 250px; object-fit: contain; }
-    .edit-form-grid { grid-template-columns: 1fr; }
-
-    /* CORREÇÃO DA ROLAGEM */
+    .modal-image-container, .modal-image {
+        width: 100%;
+        height: auto;
+    }
+    .modal-image img {
+        max-height: 250px;
+        object-fit: contain;
+    }
+    .edit-form-grid {
+        grid-template-columns: 1fr;
+    }
     .modal-details {
-        flex: 1; /* Permite que a área de detalhes cresça */
-        min-height: 0; /* Garante que a rolagem funcione dentro do flexbox */
-        overflow-y: auto;   /* A rolagem agora acontece APENAS na área dos detalhes */
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
         padding-right: 0.5rem;
     }
 }
