@@ -16,8 +16,8 @@
     padding: 2rem 3rem;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    width: 100%;
-    max-width: 1200px; /* Aumentado para garantir que o grid fique largo */
+    width: 85vw; /* Ocupa 85% da largura da tela */
+    max-width: 1600px; /* Limite máximo para telas muito grandes */
 }
 
 .form-container h1 {
@@ -29,7 +29,7 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Garante o layout de 2 colunas no desktop */
+    grid-template-columns: 1fr 1fr 1fr; 
     gap: 1.5rem;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; 
 }
 
 .form-group label {
@@ -127,19 +127,71 @@
     align-items: center;
     gap: 1rem;
 }
-.qr-code-modal h2 { margin-top: 0; color: var(--primary-text-color); font-size: 1.2rem; }
-.qr-code-modal p { margin: 0; color: var(--secondary-text-color); }
-.qr-code-container { padding: 1rem; background-color: white; border: 1px solid var(--border-color); border-radius: 4px; margin-top: 1rem; }
-.qr-modal-buttons { display: flex; gap: 1rem; width: 100%; margin-top: 1.5rem; }
-.qr-print-button, .modal-close-button-qr { width: 100%; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; color: white; }
-.qr-print-button { background-color: var(--accent-color); }
-.qr-print-button:hover { background-color: var(--accent-color-hover); }
-.modal-close-button-qr { background-color: var(--danger-color); }
-.modal-close-button-qr:hover { background-color: var(--danger-color-hover); }
+
+.qr-code-modal h2 {
+    margin-top: 0;
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+}
+
+.qr-code-modal p {
+    margin: 0;
+    color: var(--secondary-text-color);
+}
+
+.qr-code-container {
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+.qr-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.qr-print-button, .modal-close-button-qr {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+.qr-print-button {
+    background-color: var(--accent-color);
+}
+.qr-print-button:hover {
+    background-color: var(--accent-color-hover);
+}
+.modal-close-button-qr {
+    background-color: var(--danger-color);
+}
+.modal-close-button-qr:hover {
+    background-color: var(--danger-color-hover);
+}
 
 
-/* --- Media Query para Mobile --- */
+/* --- Media Queries --- */
+@media (max-width: 1200px) {
+    /* Em telas menores (tablets), volta para 2 colunas */
+    .form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .form-container {
+        width: 90vw;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Em celulares, muda para uma coluna só */
     .form-grid {
         grid-template-columns: 1fr;
     }
@@ -148,6 +200,8 @@
     }
     .form-container {
         padding: 2rem 1rem;
+        width: 100%;
+        max-width: 100%;
     }
     .form-group input,
     .form-group select,

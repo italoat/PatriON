@@ -34,7 +34,7 @@ const RegistrationScreen = () => {
     const [qrCodeData, setQrCodeData] = useState(null);
 
     useEffect(() => {
-        axios.get('https://patrion.onrender.com/api/sectors')
+        axios.get(`https://patrion.onrender.com/api/sectors`)
             .then(response => {
                 setSectors(response.data);
                 if (response.data.length > 0 && !formData.setor) {
@@ -75,7 +75,7 @@ const RegistrationScreen = () => {
             dataToSubmit.append('foto', file);
         }
 
-        axios.post('https://patrion.onrender.com/api/inventory', dataToSubmit, {
+        axios.post(`https://patrion.onrender.com/api/inventory`, dataToSubmit, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
         .then(response => {
@@ -178,7 +178,7 @@ const RegistrationScreen = () => {
                         </div>
                         <button type="submit" className="submit-button">Cadastrar Item</button>
                     </form>
-                    {isError && message && <p className={`form-message ${isError ? 'error' : 'success'}`}>{message}</p>}
+                    {isError && message && <p className="form-message error">{message}</p>}
                 </div>
             </main>
 
