@@ -3,29 +3,131 @@
     min-height: 100vh;
     padding-top: 90px;
 }
-.inventory-content { padding: 2rem; max-width: 1400px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-.inventory-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
-.inventory-title { color: var(--primary-text-color); margin: 0; font-size: 2.5rem; }
-.search-button { background-color: var(--accent-color); color: white; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: background-color 0.2s; }
-.search-button:hover { background-color: var(--accent-color-hover); }
-.table-container { background-color: var(--content-bg-color); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; }
-.inventory-table { width: 100%; border-collapse: collapse; }
-.inventory-table thead { background-color: #1a202c; }
-.inventory-table th { color: var(--primary-text-color); }
-.inventory-table th, .inventory-table td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--secondary-text-color); }
-.inventory-table tbody tr { transition: background-color 0.2s ease-in-out; cursor: pointer; }
-.inventory-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
-.loading-message { text-align: center; font-size: 1.5rem; padding: 3rem; }
+
+.inventory-content { 
+    padding: 2rem; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.inventory-title { 
+    color: var(--primary-text-color);
+    margin: 0; 
+    font-size: 2.5rem; 
+}
+
+.search-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+.search-button:hover {
+    background-color: var(--accent-color-hover);
+}
+
+.table-container { 
+    background-color: var(--content-bg-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden; 
+}
+
+.inventory-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.inventory-table thead { 
+    background-color: #1a202c; 
+}
+
+.inventory-table th {
+    color: var(--primary-text-color);
+}
+
+.inventory-table th, .inventory-table td { 
+    padding: 1rem 1.5rem; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
+    white-space: nowrap; /* Impede que o texto quebre em várias linhas */
+}
+
+.inventory-table tbody tr { 
+    transition: background-color 0.2s ease-in-out; 
+    cursor: pointer; 
+}
+
+.inventory-table tbody tr:hover { 
+    background-color: rgba(255, 255, 255, 0.05); 
+}
+
+.loading-message { 
+    text-align: center; 
+    font-size: 1.5rem; 
+    padding: 3rem; 
+}
 
 /* --- ESTILOS DO MODAL --- */
-.modal-overlay { background-color: rgba(0, 0, 0, 0.8); position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: var(--content-bg-color); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; width: 90%; max-width: 1100px; position: relative; outline: none; display: flex; flex-direction: column; max-height: 90vh; }
-.modal-close-button { position: absolute; top: 10px; right: 15px; border: none; background: transparent; font-size: 2.5rem; color: var(--secondary-text-color); cursor: pointer; line-height: 1; z-index: 10; }
-.modal-body { display: flex; gap: 2rem; overflow: hidden; flex: 1; min-height: 0; }
+.modal-overlay { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background-color: rgba(0, 0, 0, 0.8); 
+    display: flex; justify-content: center; align-items: center; 
+    z-index: 1000; 
+}
+
+.modal-content { 
+    background: var(--content-bg-color); 
+    border: 1px solid var(--border-color);
+    padding: 2rem; 
+    border-radius: 8px; 
+    width: 90%; 
+    max-width: 1100px; 
+    position: relative; 
+    outline: none; 
+    display: flex; 
+    flex-direction: column; 
+    max-height: 90vh; 
+}
+
+.modal-close-button { 
+    position: absolute; top: 10px; right: 15px; 
+    border: none; background: transparent; font-size: 2.5rem; 
+    color: var(--secondary-text-color); cursor: pointer; line-height: 1; z-index: 10; 
+}
+
+.modal-body { 
+    display: flex; 
+    gap: 2rem; 
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+}
+
 .modal-image-container { display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0; }
 .image-upload-area { width: 354px; }
 .modal-image { width: 354px; height: 472px; }
 .modal-image img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; background-color: var(--background-color); }
+
 .modal-details { flex: 1; overflow-y: auto; padding-right: 1rem; }
 .modal-details h2 { margin-top: 0; color: var(--primary-text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
 .modal-details ul { list-style: none; padding: 0; }
@@ -36,9 +138,21 @@
 .form-group-grid { display: flex; flex-direction: column; }
 .full-width-grid-item { grid-column: 1 / -1; }
 .modal-details label { display: block; margin-top: 0.5rem; font-weight: bold; color: var(--secondary-text-color); font-size: 14px; }
-.modal-details .modal-input, .modal-details input, .modal-details select, .modal-details textarea { width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; box-sizing: border-box; background-color: var(--background-color); color: var(--primary-text-color); }
+.modal-details .modal-input, .modal-details input, .modal-details select, .modal-details textarea { 
+    width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; 
+    box-sizing: border-box; background-color: var(--background-color); color: var(--primary-text-color);
+}
+.modal-details textarea.modal-input { min-height: 80px; resize: vertical; }
 
-.modal-footer { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-footer { 
+    margin-top: 1.5rem;
+    padding-top: 1rem; 
+    border-top: 1px solid var(--border-color); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    flex-shrink: 0;
+}
 .footer-left, .footer-right { display: flex; gap: 0.5rem; }
 .qr-generate-button { border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; background-color: #7857ff; color: white; display: flex; align-items: center; gap: 0.5rem; }
 .qr-generate-button:hover { background-color: #5d3de2; }
@@ -68,10 +182,51 @@
 .modal-close-button-qr { background-color: var(--danger-color); }
 .modal-close-button-qr:hover { background-color: var(--danger-color-hover); }
 
-/* --- Media Queries --- */
+
+/* --- Media Query para Mobile --- */
 @media (max-width: 768px) {
-    .modal-body { flex-direction: column; overflow-y: auto; flex: 1; min-height: 0; }
-    .modal-details { overflow-y: visible; padding-right: 0; flex: initial; }
-    .modal-footer { flex-direction: column; gap: 1rem; }
-    .footer-left, .footer-right { justify-content: center; width: 100%; }
+    .inventory-content { padding: 1rem; }
+    
+    .table-container {
+        overflow-x: auto; /* Permite rolagem horizontal */
+        -webkit-overflow-scrolling: touch; /* Melhora a experiência de rolagem no iOS */
+    }
+    
+    .modal-content {
+        padding: 1.5rem 1rem;
+        max-height: 95vh;
+        width: 95vw;
+        max-width: 95vw;
+    }
+    .modal-body {
+        flex-direction: column;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+    }
+    .modal-image-container, .modal-image {
+        width: 100%;
+        height: auto;
+    }
+    .modal-image img {
+        max-height: 250px;
+        object-fit: contain;
+    }
+    .edit-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-details {
+        overflow-y: visible;
+        padding-right: 0;
+        flex: initial;
+    }
+    .modal-footer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .footer-left, .footer-right {
+        justify-content: center;
+        width: 100%;
+    }
 }
+
