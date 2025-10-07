@@ -28,8 +28,22 @@ const inventoryItemSchema = new mongoose.Schema({
     taxaDepreciacao: {
         type: Number,
         required: true,
-        default: 10 // MUDANÇA AQUI: O padrão agora é 10 (representando 10%)
-    }
+        default: 10
+    },
+
+    // --- NOVO CAMPO ADICIONADO PARA O HISTÓRICO ---
+    historicoSetores: [
+        {
+            setor: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Sector'
+            },
+            dataMudanca: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 
 }, { timestamps: { createdAt: 'dataCadastro', updatedAt: 'ultimaAtualizacao' } });
 

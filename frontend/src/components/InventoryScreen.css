@@ -21,7 +21,7 @@
 }
 
 .inventory-title { 
-    color: var(--primary-text-color);
+    color: var(--primary-text-color); 
     margin: 0; 
     font-size: 2.5rem; 
 }
@@ -45,8 +45,8 @@
 }
 
 .table-container { 
-    background-color: var(--content-bg-color);
-    border-radius: 8px;
+    background-color: var(--content-bg-color); 
+    border-radius: 8px; 
     border: 1px solid var(--border-color);
     overflow: hidden; 
 }
@@ -69,7 +69,7 @@
     text-align: left; 
     border-bottom: 1px solid var(--border-color);
     color: var(--secondary-text-color);
-    white-space: nowrap; /* Impede que o texto quebre em várias linhas */
+    white-space: nowrap;
 }
 
 .inventory-table tbody tr { 
@@ -89,8 +89,9 @@
 
 /* --- ESTILOS DO MODAL --- */
 .modal-overlay { 
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-    background-color: rgba(0, 0, 0, 0.8); 
+    background-color: rgba(0, 0, 0, 0.8);
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
     display: flex; justify-content: center; align-items: center; 
     z-index: 1000; 
 }
@@ -156,6 +157,8 @@
 .footer-left, .footer-right { display: flex; gap: 0.5rem; }
 .qr-generate-button { border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; background-color: #7857ff; color: white; display: flex; align-items: center; gap: 0.5rem; }
 .qr-generate-button:hover { background-color: #5d3de2; }
+.history-button { border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; background-color: #ff9800; color: white; display: flex; align-items: center; gap: 0.5rem; }
+.history-button:hover { background-color: #f57c00; }
 .modal-edit-button, .modal-save-button, .modal-delete-button { border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; color: white; }
 .modal-edit-button { background-color: var(--accent-color); }
 .modal-save-button { background-color: var(--success-color); }
@@ -166,27 +169,7 @@
 .search-modal-content h2 { margin-top: 0; color: var(--primary-text-color); }
 .search-input-group { display: flex; margin: 1.5rem 0; }
 .search-input-group input { flex-grow: 1; padding: 0.75rem; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 6px 0 0 6px; background-color: var(--background-color); color: var(--primary-text-color); }
-
-.qr-button { 
-    padding: 0 1rem; 
-    border: 1px solid var(--border-color); 
-    border-left: none; 
-    background: var(--background-color); 
-    cursor: pointer; 
-    border-radius: 0 6px 6px 0; 
-    display: flex; 
-    align-items: center;
-    transition: background-color 0.2s;
-}
-.qr-button:hover {
-    background-color: #3e4a61; /* Um tom um pouco mais claro do fundo do card */
-}
-.qr-button i {
-    font-size: 1.5rem;
-    color: var(--secondary-text-color);
-}
-
-
+.qr-button { padding: 0 1rem; border: 1px solid var(--border-color); border-left: none; background: var(--background-color); cursor: pointer; border-radius: 0 6px 6px 0; font-size: 1.5rem; color: var(--secondary-text-color); display: flex; align-items: center; }
 .search-modal-button { width: 100%; padding: 1rem; background-color: var(--accent-color); color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
 .search-modal-button:hover { background-color: var(--accent-color-hover); }
 
@@ -202,15 +185,22 @@
 .modal-close-button-qr { background-color: var(--danger-color); }
 .modal-close-button-qr:hover { background-color: var(--danger-color-hover); }
 
+/* --- ESTILOS DO MODAL DE HISTÓRICO --- */
+.history-modal-content { background: var(--content-bg-color); border: 1px solid var(--border-color); padding: 2rem; border-radius: 8px; width: 90%; max-width: 700px; outline: none; position: relative; }
+.history-modal-content h2 { margin-top: 0; color: var(--primary-text-color); text-align: center; }
+.history-modal-content p { text-align: center; margin-top: -1rem; margin-bottom: 2rem; color: var(--secondary-text-color); font-style: italic; }
+.history-table-container { max-height: 60vh; overflow-y: auto; }
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table thead { background-color: #1a202c; position: sticky; top: 0; }
+.history-table th, .history-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); color: var(--secondary-text-color); }
+.history-table th { color: var(--primary-text-color); text-align: left; }
+.history-table tbody tr:last-child td { border-bottom: none; }
 
-/* --- Media Query para Mobile --- */
+/* --- Media Queries --- */
 @media (max-width: 768px) {
     .inventory-content { padding: 1rem; }
-    
-    .table-container {
-        overflow-x: auto; /* Permite rolagem horizontal */
-        -webkit-overflow-scrolling: touch; /* Melhora a experiência de rolagem no iOS */
-    }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .inventory-table { min-width: 600px; }
     
     .modal-content {
         padding: 1.5rem 1rem;
@@ -220,25 +210,15 @@
     }
     .modal-body {
         flex-direction: column;
-        overflow-y: auto;
+    }
+    .modal-image-container, .modal-image { width: 100%; height: auto; }
+    .modal-image img { max-height: 250px; object-fit: contain; }
+    .edit-form-grid { grid-template-columns: 1fr; }
+    .modal-details {
         flex: 1;
         min-height: 0;
-    }
-    .modal-image-container, .modal-image {
-        width: 100%;
-        height: auto;
-    }
-    .modal-image img {
-        max-height: 250px;
-        object-fit: contain;
-    }
-    .edit-form-grid {
-        grid-template-columns: 1fr;
-    }
-    .modal-details {
-        overflow-y: visible;
-        padding-right: 0;
-        flex: initial;
+        overflow-y: auto;
+        padding-right: 0.5rem;
     }
     .modal-footer {
         flex-direction: column;
@@ -249,4 +229,3 @@
         width: 100%;
     }
 }
-

@@ -1,4 +1,4 @@
-// frontend/src/components/InventoryScreen.js
+// frontend/src/components/InventoryScreen.js (VERSÃO FINAL E COMPLETA)
 
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -52,18 +52,17 @@ const InventoryScreen = () => {
     const [allSectors, setAllSectors] = useState([]);
     const [newFile, setNewFile] = useState(null);
     
-    // Estados para a Busca e QR Code
+    // Estados para a Busca, QR Code e Histórico
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [searchPatrimonio, setSearchPatrimonio] = useState('');
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const navigate = useNavigate();
     
-    // --- Novos Estados para a Visualização de Imagem no Mobile ---
     const { width } = useWindowSize();
     const isMobile = width <= 768;
     const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
-
 
     useEffect(() => {
         axios.get('https://patrion.onrender.com/api/sectors').then(res => setAllSectors(res.data));
@@ -94,6 +93,8 @@ const InventoryScreen = () => {
         setIsEditMode(false);
         setNewFile(null);
         setIsQrModalOpen(false);
+        setIsHistoryModalOpen(false);
+        setIsImageViewerOpen(false);
     };
 
     const handleEditChange = (e) => {
@@ -219,7 +220,6 @@ const InventoryScreen = () => {
                     <div>
                         <button type="button" onClick={closeModal} className="modal-close-button">&times;</button>
                         <div className="modal-body">
-                            {/* --- LÓGICA CONDICIONAL PARA A IMAGEM --- */}
                             {!isMobile && (
                                 <div className="modal-image-container">
                                     <div className="modal-image">
@@ -233,11 +233,9 @@ const InventoryScreen = () => {
                                     )}
                                 </div>
                             )}
-
                             <div className="modal-details">
                                 <div className="modal-details-header">
                                     <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
-                                    {/* ÍCONE DE IMAGEM SÓ APARECE NO MODO DE VISUALIZAÇÃO E NO MOBILE */}
                                     {!isEditMode && isMobile && selectedItem.foto && (
                                         <button type="button" className="view-image-button" onClick={() => setIsImageViewerOpen(true)}>
                                             <i className="fas fa-image"></i> Ver Imagem
@@ -291,7 +289,6 @@ const InventoryScreen = () => {
                                             <label>Observação:</label>
                                             <textarea className="modal-input" name="observacao" value={editableData.observacao || ''} onChange={handleEditChange}></textarea>
                                         </div>
-                                        {/* CAMPO DE UPLOAD DE IMAGEM PARA MOBILE */}
                                         {isMobile && (
                                             <div className="form-group-grid full-width-grid-item">
                                                 <label>Substituir Imagem:</label>
@@ -319,18 +316,23 @@ const InventoryScreen = () => {
                         <div className="modal-footer">
                             <div className="footer-left">
                                 {!isEditMode && (
-                                    <button type="button" onClick={() => setIsQrModalOpen(true)} className="qr-generate-button">
-                                        <i className="fas fa-qrcode"></i> Gerar QR Code
-                                    </button>
+                                    <>
+                                        <button type="button" onClick={() => setIsQrModalOpen(true)} className="qr-generate-button">
+                                            <i className="fas fa-qrcode"></i> Gerar QR Code
+                                        </button>
+                                        <button type="button" onClick={() => setIsHistoryModalOpen(true)} className="history-button">
+                                            <i className="fas fa-history"></i> Histórico
+                                        </button>
+                                    </>
                                 )}
                             </div>
                             <div className="footer-right">
                                 {isEditMode ? (
-                                    <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar Alterações</button>
+                                    <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar</button>
                                 ) : (
                                     <button type="button" onClick={() => setIsEditMode(true)} className="modal-edit-button">Editar</button>
                                 )}
-                                <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar Item</button>
+                                <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar</button>
                             </div>
                         </div>
                     </div>
@@ -384,7 +386,6 @@ const InventoryScreen = () => {
                 )}
             </Modal>
 
-            {/* NOVO MODAL: VISUALIZADOR DE IMAGEM PARA O MOBILE */}
             <Modal isOpen={isImageViewerOpen} onRequestClose={() => setIsImageViewerOpen(false)} className="image-viewer-modal" overlayClassName="modal-overlay">
                 {selectedItem && (
                     <>
@@ -393,9 +394,36 @@ const InventoryScreen = () => {
                     </>
                 )}
             </Modal>
+
+            <Modal isOpen={isHistoryModalOpen} onRequestClose={() => setIsHistoryModalOpen(false)} className="history-modal-content" overlayClassName="modal-overlay">
+                {selectedItem && (
+                    <>
+                        <button type="button" onClick={() => setIsHistoryModalOpen(false)} className="modal-close-button">&times;</button>
+                        <h2>Histórico de Setores do Item</h2>
+                        <p>{selectedItem.descricao}</p>
+                        <div className="history-table-container">
+                            <table className="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Setor</th>
+                                        <th>Data da Mudança</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedItem.historicoSetores && selectedItem.historicoSetores.map((hist, index) => (
+                                        <tr key={index}>
+                                            <td>{hist.setor ? hist.setor.nome : 'Setor Deletado'}</td>
+                                            <td>{formatDateForDisplay(hist.dataMudanca)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+            </Modal>
         </div>
     );
 };
 
 export default InventoryScreen;
-
