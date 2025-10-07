@@ -82,6 +82,7 @@ const InventoryScreen = () => {
 
     const openModal = (item) => {
         setSelectedItem(item);
+        // CORREÇÃO: Ao abrir, já preparamos o editableData com o setor como um ID
         setEditableData({ ...item, setor: item.setor ? item.setor._id : '' }); 
         setIsEditMode(false);
         setNewFile(null);
@@ -107,27 +108,27 @@ const InventoryScreen = () => {
         setNewFile(e.target.files[0]);
     };
 
-   const handleUpdate = useCallback(() => {
+    const handleUpdate = useCallback(() => {
         const dataToSubmit = new FormData();
         Object.keys(editableData).forEach(key => {
+            // Agora podemos enviar todos os campos diretamente, pois 'setor' já é um ID
             if (key !== '_id' && key !== '__v' && key !== 'valorAtual') {
                 dataToSubmit.append(key, editableData[key]);
             }
         });
-        if (newFile) {
-            dataToSubmit.append('foto', newFile);
-        }
+        if (newFile) { dataToSubmit.append('foto', newFile); }
 
         axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit, {
             headers: { 'Content-Type': 'multipart/form-data' }
         })
         .then(response => {
-            fetchInventory();
+            fetchInventory(); // Recarrega toda a lista para garantir consistência total
             alert('Item atualizado com sucesso!');
             closeModal();
         })
         .catch(error => { console.error("Erro ao atualizar o item:", error); alert('Falha ao salvar as alterações.'); });
     }, [editableData, selectedItem, newFile, fetchInventory]);
+
 
     const handleDelete = useCallback((itemToDelete) => {
         if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete.descricao}"?`)) return;
@@ -257,7 +258,7 @@ const InventoryScreen = () => {
                                             <input className="modal-input" type="text" name="descricao" value={editableData.descricao || ''} onChange={handleEditChange} required/>
                                         </div>
                                         <div className="form-group-grid">
-                                           <label>Setor:</label>
+                                            <label>Setor:</label>
                                             {/* CORREÇÃO: O valor do select agora é sempre o ID do setor */}
                                             <select className="modal-input" name="setor" value={editableData.setor} onChange={handleEditChange} required>
                                                 <option value="" disabled>Selecione</option>
