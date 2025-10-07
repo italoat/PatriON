@@ -11,7 +11,7 @@ import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
-// --- (Funções de formatação e hook useWindowSize - sem alterações) ---
+// --- Funções de Formatação ---
 const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toISOString().split('T')[0]; };
 const formatDateForDisplay = (dateString) => { if (!dateString) return 'N/A'; const date = new Date(dateString); return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); };
 const formatCurrency = (value) => { if (typeof value !== 'number') return 'R$ 0,00'; return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
@@ -49,7 +49,7 @@ const InventoryScreen = () => {
 
     const openModal = (item) => {
         setSelectedItem(item);
-        // CORREÇÃO: Ao abrir, já preparamos o editableData com o setor como um ID
+        // CORREÇÃO: Ao abrir, já preparamos o editableData com o setor como um ID (string)
         setEditableData({ ...item, setor: item.setor ? item.setor._id : '' }); 
         setIsEditMode(false);
         setNewFile(null);
@@ -219,7 +219,6 @@ const InventoryScreen = () => {
                                         </div>
                                         <div className="form-group-grid">
                                             <label>Setor:</label>
-                                            {/* CORREÇÃO: O valor do select agora é sempre o ID do setor */}
                                             <select className="modal-input" name="setor" value={editableData.setor} onChange={handleEditChange} required>
                                                 <option value="" disabled>Selecione</option>
                                                 {allSectors.map(s => <option key={s._id} value={s._id}>{s.nome}</option>)}
