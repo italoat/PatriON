@@ -1,4 +1,4 @@
-// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE)
+// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE COM NOVO GRÁFICO)
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import axios from 'axios';
@@ -43,6 +43,7 @@ const DashboardScreen = () => {
     const barChartRef = useRef();
     const doughnutChartRef = useRef();
     const valueChartRef = useRef();
+    const valueBySectorChartRef = useRef(); // Ref para o novo gráfico
 
     useEffect(() => {
         axios.get(`https://patrion.onrender.com/api/sectors`)
@@ -61,42 +62,87 @@ const DashboardScreen = () => {
 
     useEffect(() => {
         if (!chartFilter.type || !chartFilter.value) { setFilteredInventory(inventoryData); } 
-        else { const filtered = inventoryData.filter(item => (item[chartFilter.type] || '').trim() === chartFilter.value); setFilteredInventory(filtered); }
+        else { const filtered = inventoryData.filter(item => (item.setor && item.setor.nome.trim() === chartFilter.value) || (item[chartFilter.type] || '').trim() === chartFilter.value); setFilteredInventory(filtered); }
     }, [inventoryData, chartFilter]);
 
     const processDataForChart = (columnName) => filteredInventory.reduce((acc, item) => { const key = (item[columnName] || 'Não Definido').trim(); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
     const calculateTotalValues = () => filteredInventory.reduce((totals, item) => { totals.totalValor += item.valor || 0; totals.totalValorAtual += item.valorAtual || 0; return totals; }, { totalValor: 0, totalValorAtual: 0 });
     
+    // Nova função para calcular o valor por setor
+    const calculateValueBySector = () => {
+        return filteredInventory.reduce((acc, item) => {
+            const sectorName = item.setor ? item.setor.nome.trim() : 'Sem Setor';
+            acc[sectorName] = (acc[sectorName] || 0) + (item.valor || 0);
+            return acc;
+        }, {});
+    };
+    
     const totals = calculateTotalValues();
-    const barChartData = { labels: Object.keys(processDataForChart('outraIdentificacao')), datasets: [{ label: 'Contagem', data: Object.values(processDataForChart('outraIdentificacao')), backgroundColor: 'rgba(153, 102, 255, 0.6)' }] };
-    const doughnutChartData = { labels: Object.keys(processDataForChart('classificacao')), datasets: [{ data: Object.values(processDataForChart('classificacao')), backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#9966FF', '#36A2EB', '#FF9F40', '#C9CBCF'] }] };
+    const barChartProcessedData = processDataForChart('outraIdentificacao');
+    const doughnutChartProcessedData = processDataForChart('classificacao');
+    const valueBySectorProcessed = calculateValueBySector();
+    
+    const barChartData = { labels: Object.keys(barChartProcessedData), datasets: [{ label: 'Contagem', data: Object.values(barChartProcessedData), backgroundColor: 'rgba(153, 102, 255, 0.6)' }] };
+    const doughnutChartData = { labels: Object.keys(doughnutChartProcessedData), datasets: [{ data: Object.values(doughnutChartProcessedData), backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#9966FF', '#36A2EB', '#FF9F40', '#C9CBCF'] }] };
     const valueComparisonData = { labels: ['Valor Contábil Total', 'Valor Atual Total (Depreciado)'], datasets: [{ data: [totals.totalValor, totals.totalValorAtual], backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'], borderWidth: 1 }] };
+    
+    // Novos dados para o gráfico de valor por setor
+    const valueBySectorData = {
+        labels: Object.keys(valueBySectorProcessed),
+        datasets: [{
+            label: 'Valor Contábil (R$)',
+            data: Object.values(valueBySectorProcessed),
+            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+            borderColor: 'rgba(255, 159, 64, 1)',
+        }],
+    };
 
-    const handleBarChartClick = (event) => { /* ... (código existente) ... */ };
-    const handleDoughnutChartClick = (event) => { /* ... (código existente) ... */ };
-    const handleGeneratePdf = () => { /* ... (código existente) ... */ };
+    const handleChartClick = (event, ref, type) => {
+        const element = getElementAtEvent(ref.current, event);
+        if (element.length > 0) {
+            const chartData = ref.current.data;
+            const clickedLabel = chartData.labels[element[0].index];
+            setChartFilter({ type: type, value: clickedLabel });
+        }
+    };
+    
+    const handleGeneratePdf = () => { /* (código existente, sem alterações) */ };
 
     // --- OPÇÕES DE ESTILO PARA OS GRÁFICOS NO TEMA ESCURO ---
     const chartDefaultOptions = {
         scales: {
-            x: { ticks: { color: '#a0aec0' }, grid: { color: '#4a5568' } },
-            y: { ticks: { color: '#a0aec0' }, grid: { color: '#4a5568' } }
+            x: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } },
+            y: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } }
         },
         plugins: {
-            legend: { labels: { color: '#e2e8f0' } }
+            legend: { labels: { color: 'var(--primary-text-color)' } }
         }
     };
     
-    const topBensChartOptions = {
+    const valueBySectorOptions = {
         ...chartDefaultOptions,
-        responsive: true,
         indexAxis: 'y',
+        responsive: true,
         plugins: {
             ...chartDefaultOptions.plugins,
             legend: { display: false },
-            datalabels: { display: width > 768, anchor: 'end', align: 'right', offset: 8, color: 'white', backgroundColor: (context) => context.dataset.backgroundColor, borderRadius: 4, padding: 4, font: { weight: 'bold' } }
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return formatCurrency(context.raw);
+                    }
+                }
+            },
+            datalabels: {
+                display: width > 768,
+                anchor: 'end',
+                align: 'right',
+                formatter: (value) => formatCurrency(value),
+                color: 'var(--primary-text-color)',
+                font: { weight: 'bold' }
+            }
         },
-        layout: { padding: { right: width > 768 ? 80 : 10 } }
+        layout: { padding: { right: width > 768 ? 120 : 10 } }
     };
 
     return (
@@ -122,42 +168,23 @@ const DashboardScreen = () => {
                         <div className="charts-grid">
                             <div className="chart-card">
                                 <h3>Valor Contábil vs. Valor Atual</h3>
-                                <Bar 
-                                    ref={valueChartRef} 
-                                    data={valueComparisonData}
-                                    options={{
-                                        ...chartDefaultOptions,
-                                        layout: { padding: { top: 30 } },
-                                        plugins: {
-                                            ...chartDefaultOptions.plugins,
-                                            legend: { display: false },
-                                            datalabels: { anchor: 'end', align: 'top', formatter: (value) => formatCurrency(value), color: '#e2e8f0', font: { weight: 'bold' } }
-                                        }
-                                    }}
-                                />
+                                <Bar ref={valueChartRef} data={valueComparisonData} options={{...chartDefaultOptions, layout: { padding: { top: 30 } }, plugins: {...chartDefaultOptions.plugins, legend: { display: false }, datalabels: { anchor: 'end', align: 'top', formatter: (value) => formatCurrency(value), color: 'var(--primary-text-color)', font: { weight: 'bold' } } } }} />
                             </div>
                             <div className="chart-card">
                                 <h3>Bens por Classificação</h3>
-                                <Doughnut 
-                                    ref={doughnutChartRef} 
-                                    data={doughnutChartData} 
-                                    onClick={handleDoughnutChartClick}
-                                    options={{
-                                        plugins: {
-                                            ...chartDefaultOptions.plugins,
-                                            datalabels: { color: 'white', backgroundColor: (context) => context.dataset.backgroundColor[context.dataIndex], borderRadius: 4, padding: 6, font: { weight: 'bold' } }
-                                        }
-                                    }}
-                                />
+                                <Doughnut ref={doughnutChartRef} data={doughnutChartData} onClick={(e) => handleChartClick(e, doughnutChartRef, 'classificacao')} options={{plugins: {...chartDefaultOptions.plugins, datalabels: { color: 'white', backgroundColor: (context) => context.dataset.backgroundColor[context.dataIndex], borderRadius: 4, padding: 6, font: { weight: 'bold' } } }}} />
                             </div>
-                            <div className="chart-card full-width-chart">
-                                <h3>Top Bens por Identificação</h3>
-                                <Bar 
-                                    ref={barChartRef} 
-                                    data={barChartData} 
-                                    onClick={handleBarChartClick} 
-                                    options={topBensChartOptions} 
-                                />
+                            <div className="chart-card span-two-columns">
+                                <div className="dual-chart-container">
+                                    <div className="chart-wrapper">
+                                        <h3>Top Bens por Identificação</h3>
+                                        <Bar ref={barChartRef} data={barChartData} onClick={(e) => handleChartClick(e, barChartRef, 'outraIdentificacao')} options={{...chartDefaultOptions, indexAxis: 'y', plugins: {...chartDefaultOptions.plugins, legend: {display: false}, datalabels: { display: false } }}} />
+                                    </div>
+                                    <div className="chart-wrapper">
+                                        <h3>Valor Contábil por Setor</h3>
+                                        <Bar ref={valueBySectorChartRef} data={valueBySectorData} options={valueBySectorOptions} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="table-section">
@@ -172,7 +199,6 @@ const DashboardScreen = () => {
                                             <th>Nº Patrimônio</th>
                                             <th>Descrição</th>
                                             <th>Setor</th>
-                                            <th>Outra Identificação</th>
                                             <th>Valor Contábil</th>
                                             <th>Valor Depreciado</th>
                                         </tr>
@@ -183,7 +209,6 @@ const DashboardScreen = () => {
                                                 <td>{item.numeroPatrimonio}</td>
                                                 <td>{item.descricao}</td>
                                                 <td>{item.setor ? item.setor.nome : 'N/A'}</td>
-                                                <td>{item.outraIdentificacao}</td>
                                                 <td>{formatCurrency(item.valor)}</td>
                                                 <td>{formatCurrency(item.valorAtual)}</td>
                                             </tr>
