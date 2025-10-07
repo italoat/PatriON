@@ -1,4 +1,4 @@
-// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE COM NOVO GRÁFICO)
+// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE COM RÓTULOS CORRIGIDOS)
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import axios from 'axios';
@@ -43,7 +43,7 @@ const DashboardScreen = () => {
     const barChartRef = useRef();
     const doughnutChartRef = useRef();
     const valueChartRef = useRef();
-    const valueBySectorChartRef = useRef(); // Ref para o novo gráfico
+    const valueBySectorChartRef = useRef();
 
     useEffect(() => {
         axios.get(`https://patrion.onrender.com/api/sectors`)
@@ -68,7 +68,6 @@ const DashboardScreen = () => {
     const processDataForChart = (columnName) => filteredInventory.reduce((acc, item) => { const key = (item[columnName] || 'Não Definido').trim(); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
     const calculateTotalValues = () => filteredInventory.reduce((totals, item) => { totals.totalValor += item.valor || 0; totals.totalValorAtual += item.valorAtual || 0; return totals; }, { totalValor: 0, totalValorAtual: 0 });
     
-    // Nova função para calcular o valor por setor
     const calculateValueBySector = () => {
         return filteredInventory.reduce((acc, item) => {
             const sectorName = item.setor ? item.setor.nome.trim() : 'Sem Setor';
@@ -85,17 +84,7 @@ const DashboardScreen = () => {
     const barChartData = { labels: Object.keys(barChartProcessedData), datasets: [{ label: 'Contagem', data: Object.values(barChartProcessedData), backgroundColor: 'rgba(153, 102, 255, 0.6)' }] };
     const doughnutChartData = { labels: Object.keys(doughnutChartProcessedData), datasets: [{ data: Object.values(doughnutChartProcessedData), backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56', '#9966FF', '#36A2EB', '#FF9F40', '#C9CBCF'] }] };
     const valueComparisonData = { labels: ['Valor Contábil Total', 'Valor Atual Total (Depreciado)'], datasets: [{ data: [totals.totalValor, totals.totalValorAtual], backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'], borderWidth: 1 }] };
-    
-    // Novos dados para o gráfico de valor por setor
-    const valueBySectorData = {
-        labels: Object.keys(valueBySectorProcessed),
-        datasets: [{
-            label: 'Valor Contábil (R$)',
-            data: Object.values(valueBySectorProcessed),
-            backgroundColor: 'rgba(255, 159, 64, 0.6)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-        }],
-    };
+    const valueBySectorData = { labels: Object.keys(valueBySectorProcessed), datasets: [{ label: 'Valor Contábil (R$)', data: Object.values(valueBySectorProcessed), backgroundColor: 'rgba(255, 159, 64, 0.6)', borderColor: 'rgba(255, 159, 64, 1)' }] };
 
     const handleChartClick = (event, ref, type) => {
         const element = getElementAtEvent(ref.current, event);
@@ -108,7 +97,6 @@ const DashboardScreen = () => {
     
     const handleGeneratePdf = () => { /* (código existente, sem alterações) */ };
 
-    // --- OPÇÕES DE ESTILO PARA OS GRÁFICOS NO TEMA ESCURO ---
     const chartDefaultOptions = {
         scales: {
             x: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } },
@@ -119,6 +107,28 @@ const DashboardScreen = () => {
         }
     };
     
+    const topBensChartOptions = {
+        ...chartDefaultOptions,
+        responsive: true,
+        indexAxis: 'y',
+        plugins: {
+            ...chartDefaultOptions.plugins,
+            legend: { display: false },
+            datalabels: {
+                display: width > 768,
+                anchor: 'end',
+                align: 'right',
+                offset: 8,
+                color: 'white', // CORREÇÃO: Fonte branca
+                backgroundColor: (context) => context.dataset.backgroundColor, // CORREÇÃO: Fundo da cor da barra
+                borderRadius: 4,
+                padding: 4,
+                font: { weight: 'bold' }
+            }
+        },
+        layout: { padding: { right: width > 768 ? 80 : 10 } }
+    };
+
     const valueBySectorOptions = {
         ...chartDefaultOptions,
         indexAxis: 'y',
@@ -126,13 +136,7 @@ const DashboardScreen = () => {
         plugins: {
             ...chartDefaultOptions.plugins,
             legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return formatCurrency(context.raw);
-                    }
-                }
-            },
+            tooltip: { callbacks: { label: (context) => formatCurrency(context.raw) } },
             datalabels: {
                 display: width > 768,
                 anchor: 'end',
@@ -178,7 +182,7 @@ const DashboardScreen = () => {
                                 <div className="dual-chart-container">
                                     <div className="chart-wrapper">
                                         <h3>Top Bens por Identificação</h3>
-                                        <Bar ref={barChartRef} data={barChartData} onClick={(e) => handleChartClick(e, barChartRef, 'outraIdentificacao')} options={{...chartDefaultOptions, indexAxis: 'y', plugins: {...chartDefaultOptions.plugins, legend: {display: false}, datalabels: { display: false } }}} />
+                                        <Bar ref={barChartRef} data={barChartData} onClick={(e) => handleChartClick(e, barChartRef, 'outraIdentificacao')} options={topBensChartOptions} />
                                     </div>
                                     <div className="chart-wrapper">
                                         <h3>Valor Contábil por Setor</h3>
