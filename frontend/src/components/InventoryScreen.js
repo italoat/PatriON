@@ -11,7 +11,7 @@ import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
-// --- Funções de Formatação ---
+// --- (Funções de formatação e hook useWindowSize - sem alterações) ---
 const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toISOString().split('T')[0]; };
 const formatDateForDisplay = (dateString) => { if (!dateString) return 'N/A'; const date = new Date(dateString); return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); };
 const formatCurrency = (value) => { if (typeof value !== 'number') return 'R$ 0,00'; return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
@@ -388,4 +388,3 @@ const InventoryScreen = () => {
 };
 
 export default InventoryScreen;
-
