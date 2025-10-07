@@ -82,7 +82,7 @@ const InventoryScreen = () => {
 
     const openModal = (item) => {
         setSelectedItem(item);
-        setEditableData({ ...item }); 
+        setEditableData({ ...item, setor: item.setor ? item.setor._id : '' }); 
         setIsEditMode(false);
         setNewFile(null);
     };
@@ -107,12 +107,10 @@ const InventoryScreen = () => {
         setNewFile(e.target.files[0]);
     };
 
-    const handleUpdate = useCallback(() => {
+   const handleUpdate = useCallback(() => {
         const dataToSubmit = new FormData();
         Object.keys(editableData).forEach(key => {
-            if (key === 'setor') {
-                dataToSubmit.append('setor', editableData.setor._id || editableData.setor);
-            } else if (key !== '_id' && key !== '__v' && key !== 'valorAtual') {
+            if (key !== '_id' && key !== '__v' && key !== 'valorAtual') {
                 dataToSubmit.append(key, editableData[key]);
             }
         });
@@ -120,25 +118,27 @@ const InventoryScreen = () => {
             dataToSubmit.append('foto', newFile);
         }
 
-        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit)
+        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
         .then(response => {
-            setInventory(prev => prev.map(item => item._id === selectedItem._id ? response.data.item : item));
+            fetchInventory();
             alert('Item atualizado com sucesso!');
             closeModal();
         })
         .catch(error => { console.error("Erro ao atualizar o item:", error); alert('Falha ao salvar as alterações.'); });
-    }, [editableData, selectedItem, newFile]);
+    }, [editableData, selectedItem, newFile, fetchInventory]);
 
     const handleDelete = useCallback((itemToDelete) => {
         if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete.descricao}"?`)) return;
         axios.delete(`https://patrion.onrender.com/api/inventory/${itemToDelete._id}`)
             .then(() => {
-                setInventory(prev => prev.filter(item => item._id !== itemToDelete._id));
+                fetchInventory();
                 alert('Item apagado com sucesso!');
                 closeModal();
             })
             .catch(error => alert('Falha ao apagar o item.'));
-    }, []);
+    }, [fetchInventory]);
 
     const handleSearch = () => {
         if (!searchPatrimonio) return;
@@ -258,7 +258,7 @@ const InventoryScreen = () => {
                                         </div>
                                         <div className="form-group-grid">
                                             <label>Setor:</label>
-                                            <select className="modal-input" name="setor" value={editableData.setor ? (editableData.setor._id || editableData.setor) : ''} onChange={handleEditChange} required>
+                                            <select className="modal-input" name="setor" value={editableData.setor} onChange={handleEditChange} required>
                                                 <option value="" disabled>Selecione</option>
                                                 {allSectors.map(s => <option key={s._id} value={s._id}>{s.nome}</option>)}
                                             </select>
@@ -427,3 +427,4 @@ const InventoryScreen = () => {
 };
 
 export default InventoryScreen;
+
