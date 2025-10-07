@@ -1,4 +1,4 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO FINAL COM CORREÇÃO DO BUG DE IMPRESSÃO DO QRCODE)
+// frontend/src/components/InventoryScreen.js (VERSÃO CORRIGIDA - SCANNER NÃO ABRE AUTOMATICAMENTE)
 
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -39,11 +39,12 @@ const InventoryScreen = () => {
     const [allSectors, setAllSectors] = useState([]);
     const [newFile, setNewFile] = useState(null);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false); // <-- scanner fechado por padrão
     const [searchPatrimonio, setSearchPatrimonio] = useState('');
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+
     const navigate = useNavigate();
     const { width } = useWindowSize();
     const isMobile = width <= 768;
@@ -51,7 +52,8 @@ const InventoryScreen = () => {
     // --- Carrega setores ---
     useEffect(() => {
         axios.get('https://patrion.onrender.com/api/sectors')
-            .then(res => setAllSectors(res.data));
+            .then(res => setAllSectors(res.data))
+            .catch(err => console.error('Erro ao carregar setores:', err));
     }, []);
 
     // --- Carrega inventário ---
@@ -82,6 +84,7 @@ const InventoryScreen = () => {
         setIsQrModalOpen(false);
         setIsHistoryModalOpen(false);
         setIsImageViewerOpen(false);
+        setIsScannerOpen(false); // <-- garante fechamento do scanner ao sair
     };
 
     const handleEditChange = (e) => {
@@ -100,7 +103,7 @@ const InventoryScreen = () => {
                 dataToSubmit.append(key, editableData[key]);
             }
         });
-        if (newFile) { dataToSubmit.append('foto', newFile); }
+        if (newFile) dataToSubmit.append('foto', newFile);
 
         axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit)
             .then(() => {
@@ -151,7 +154,7 @@ const InventoryScreen = () => {
         setIsScannerOpen(false);
     };
 
-    // --- Correção da função de impressão do QR Code ---
+    // --- Função de impressão do QR Code ---
     const handlePrintQr = () => {
         if (!selectedItem) return;
 
@@ -227,134 +230,6 @@ const InventoryScreen = () => {
                 </div>
             </main>
 
-            {/* --- Modal Principal --- */}
-            <Modal isOpen={!!selectedItem} onRequestClose={closeModal} className="modal-content" overlayClassName="modal-overlay">
-                {selectedItem && (
-                    <div>
-                        <button type="button" onClick={closeModal} className="modal-close-button">&times;</button>
-                        <div className="modal-body">
-                            {!isMobile && (
-                                <div className="modal-image-container">
-                                    <div className="modal-image">
-                                        <img src={newFile ? URL.createObjectURL(newFile) : (selectedItem.foto || `https://via.placeholder.com/354x472.png?text=Sem+Imagem`)} alt={selectedItem.descricao} />
-                                    </div>
-                                    {isEditMode && (
-                                        <div className="form-group-grid image-upload-area">
-                                            <label>Substituir Imagem:</label>
-                                            <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            <div className="modal-details">
-                                <div className="modal-details-header">
-                                    <h2>{isEditMode ? 'Editar Item' : 'Detalhes do Item'}</h2>
-                                    {!isEditMode && isMobile && selectedItem.foto && (
-                                        <button type="button" className="view-image-button" onClick={() => setIsImageViewerOpen(true)}>
-                                            <i className="fas fa-image"></i> Ver Imagem
-                                        </button>
-                                    )}
-                                </div>
-                                {isEditMode ? (
-                                    <div className="edit-form-grid">
-                                        <div className="form-group-grid">
-                                            <label>Nº Patrimônio:</label>
-                                            <input className="modal-input" type="text" name="numeroPatrimonio" value={editableData.numeroPatrimonio || ''} onChange={handleEditChange} required/>
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Patrimônio Anterior:</label>
-                                            <input className="modal-input" type="text" name="numeroPatrimonioAnterior" value={editableData.numeroPatrimonioAnterior || ''} onChange={handleEditChange} />
-                                        </div>
-                                        <div className="form-group-grid full-width-grid-item">
-                                            <label>Descrição:</label>
-                                            <input className="modal-input" type="text" name="descricao" value={editableData.descricao || ''} onChange={handleEditChange} required/>
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Setor:</label>
-                                            <select className="modal-input" name="setor" value={editableData.setor} onChange={handleEditChange} required>
-                                                <option value="" disabled>Selecione</option>
-                                                {allSectors.map(s => <option key={s._id} value={s._id}>{s.nome}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Classificação:</label>
-                                            <select className="modal-input" name="classificacao" value={editableData.classificacao || 'BOM'} onChange={handleEditChange}>
-                                                <option value="BOM">Bom</option>
-                                                <option value="OTIMO">Ótimo</option>
-                                                <option value="INSERVIVEL">Inservível</option>
-                                                <option value="OCIOSO">Ocioso</option>
-                                            </select>
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Data de Entrada:</label>
-                                            <input className="modal-input" type="date" name="entrada" value={formatDate(editableData.entrada)} onChange={handleEditChange} />
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Valor Contábil (R$):</label>
-                                            <input className="modal-input" type="number" name="valor" value={editableData.valor || 0} onChange={handleEditChange} step="0.01" min="0" />
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Taxa de Depreciação (%):</label>
-                                            <input className="modal-input" type="number" name="taxaDepreciacao" value={editableData.taxaDepreciacao || 0} onChange={handleEditChange} step="1" min="0" max="100" />
-                                        </div>
-                                        <div className="form-group-grid">
-                                            <label>Outra Identificação:</label>
-                                            <input className="modal-input" type="text" name="outraIdentificacao" value={editableData.outraIdentificacao || ''} onChange={handleEditChange} />
-                                        </div>
-                                        <div className="form-group-grid full-width-grid-item">
-                                            <label>Observação:</label>
-                                            <textarea className="modal-input" name="observacao" value={editableData.observacao || ''} onChange={handleEditChange}></textarea>
-                                        </div>
-                                        {isMobile && (
-                                            <div className="form-group-grid full-width-grid-item">
-                                                <label>Substituir Imagem:</label>
-                                                <input className="modal-input" type="file" name="foto" onChange={handleFileChange} />
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <ul>
-                                        <li><strong>Nº Patrimônio:</strong> {selectedItem.numeroPatrimonio}</li>
-                                        <li><strong>Patrimônio Anterior:</strong> {selectedItem.numeroPatrimonioAnterior}</li>
-                                        <li><strong>Descrição:</strong> {selectedItem.descricao}</li>
-                                        <li><strong>Classificação:</strong> {selectedItem.classificacao}</li>
-                                        <li><strong>Setor:</strong> {selectedItem.setor ? selectedItem.setor.nome : 'N/A'}</li>
-                                        <li><strong>Outra Identificação:</strong> {selectedItem.outraIdentificacao}</li>
-                                        <li><strong>Data de Entrada:</strong> {formatDateForDisplay(selectedItem.entrada)}</li>
-                                        <li><strong>Valor Contábil:</strong> {formatCurrency(selectedItem.valor)}</li>
-                                        <li><strong>Taxa de Depreciação:</strong> {selectedItem.taxaDepreciacao}% a.a.</li>
-                                        <li className="valor-atual"><strong>Valor Atual (Depreciado):</strong> {formatCurrency(selectedItem.valorAtual)}</li>
-                                        <li><strong>Observação:</strong> {selectedItem.observacao}</li>
-                                    </ul>
-                                )}
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <div className="footer-left">
-                                {!isEditMode && (
-                                    <>
-                                        <button type="button" onClick={() => setIsQrModalOpen(true)} className="qr-generate-button">
-                                            <i className="fas fa-qrcode"></i> Gerar QR Code
-                                        </button>
-                                        <button type="button" onClick={() => setIsHistoryModalOpen(true)} className="history-button">
-                                            <i className="fas fa-history"></i> Histórico
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                            <div className="footer-right">
-                                {isEditMode ? (
-                                    <button type="button" onClick={handleUpdate} className="modal-save-button">Salvar</button>
-                                ) : (
-                                    <button type="button" onClick={() => setIsEditMode(true)} className="modal-edit-button">Editar</button>
-                                )}
-                                <button type="button" onClick={() => handleDelete(selectedItem)} className="modal-delete-button">Apagar</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </Modal>
-
             {/* --- Modal de busca --- */}
             <Modal isOpen={isSearchModalOpen} onRequestClose={() => setIsSearchModalOpen(false)} className="search-modal-content" overlayClassName="modal-overlay">
                 <h2>Buscar Patrimônio</h2>
@@ -384,8 +259,14 @@ const InventoryScreen = () => {
                 </button>
             </Modal>
 
-            {/* --- Scanner de QR --- */}
-            <QrScanner isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} onScanSuccess={handleScanSuccess} />
+            {/* --- Scanner de QR (apenas quando aberto pelo botão) --- */}
+            {isScannerOpen && (
+                <QrScanner
+                    isOpen={isScannerOpen}
+                    onClose={() => setIsScannerOpen(false)}
+                    onScanSuccess={handleScanSuccess}
+                />
+            )}
         </div>
     );
 };
