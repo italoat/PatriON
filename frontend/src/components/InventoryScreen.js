@@ -175,8 +175,7 @@ const InventoryScreen = () => {
 
             printWindow.focus();
             setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
+
             }, 500);
         } catch (error) {
             console.error('Erro ao gerar impressão do QR Code:', error);
