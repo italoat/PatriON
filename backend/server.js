@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO COM LÓGICA DE HISTÓRICO)
+// backend/server.js (VERSÃO COM LÓGICA DE HISTÓRICO CORRIGIDA)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,7 +11,6 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// Importa os modelos e serviços
 const User = require('./models/User');
 const InventoryItem = require('./models/InventoryItem');
 const Sector = require('./models/Sector');
@@ -22,7 +21,6 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
-// Middlewares e Configurações
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -38,9 +36,9 @@ const upload = multer({ storage: storage });
 
 let mailTransporter;
 
-// --- ROTAS DA API ---
+// --- ROTAS ---
 
-// Rota de Login
+// Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email e senha são obrigatórios.' });
@@ -54,7 +52,7 @@ app.post('/api/login', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Erro interno no servidor." }); }
 });
 
-// Rota de Criação de Usuário
+// Criação de Usuário
 app.post('/api/users', async (req, res) => {
     try {
         const { nome, Login, senha, perfil } = req.body;
@@ -70,7 +68,7 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-// Rota "Esqueci Minha Senha"
+// Esqueci minha senha
 app.post('/api/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
@@ -91,7 +89,7 @@ app.post('/api/forgot-password', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Erro interno no servidor." }); }
 });
 
-// Rota "Redefinir Senha"
+// Redefinir Senha
 app.post('/api/reset-password/:token', async (req, res) => {
     try {
         const user = await User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } });
@@ -108,7 +106,7 @@ app.post('/api/reset-password/:token', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Erro interno no servidor." }); }
 });
 
-// Rota de Setores
+// Get Setores
 app.get('/api/sectors', async (req, res) => {
     try {
         const sectors = await Sector.find().sort({ nome: 1 });
@@ -116,7 +114,7 @@ app.get('/api/sectors', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Erro ao buscar setores." }); }
 });
 
-// Rota de Inventário (GET) - ATUALIZADA COM HISTÓRICO
+// GET Inventário
 app.get('/api/inventory', async (req, res) => {
     try {
         const { setorId } = req.query;
@@ -131,109 +129,113 @@ app.get('/api/inventory', async (req, res) => {
             if (item.entrada && item.valor > 0 && item.taxaDepreciacao >= 0) {
                 const hoje = new Date();
                 const dataEntrada = new Date(item.entrada);
-                const diffTime = Math.abs(hoje - dataEntrada);
-                const diffAnos = diffTime / (1000 * 60 * 60 * 24 * 365.25);
-                const taxaDecimal = item.taxaDepreciacao / 100;
-                const depreciacaoTotal = item.valor * taxaDecimal * diffAnos;
-                let valorAtual = item.valor - depreciacaoTotal;
-                return { ...item, valorAtual: Math.max(0, valorAtual) };
+                const diffAnos = (hoje - dataEntrada) / (1000 * 60 * 60 * 24 * 365.25);
+                const depreciacaoTotal = item.valor * (item.taxaDepreciacao / 100) * diffAnos;
+                item.valorAtual = Math.max(0, item.valor - depreciacaoTotal);
+            } else {
+                item.valorAtual = item.valor;
             }
-            return { ...item, valorAtual: item.valor };
+            return item;
         });
 
         res.json(itemsWithDepreciation);
-    } catch (error) { 
-        res.status(500).json({ message: "Erro ao buscar inventário.", error: error.message }); 
-    }
+    } catch (error) { res.status(500).json({ message: "Erro ao buscar inventário.", error: error.message }); }
 });
 
-// Rota de Inventário (POST) - ATUALIZADA COM HISTÓRICO
+// POST Inventário
 app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     try {
         const newItemData = { ...req.body };
-        if (req.file) { newItemData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`; }
-
-        // Adiciona o primeiro registro ao histórico
+        if (req.file) newItemData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`;
         newItemData.historicoSetores = [{ setor: newItemData.setor, dataMudanca: new Date() }];
-
         const newItem = new InventoryItem(newItemData);
         await newItem.save();
-
         const populatedItem = await InventoryItem.findById(newItem._id)
             .populate('setor')
             .populate({ path: 'historicoSetores.setor', model: 'Sector' });
-            
         res.status(201).json({ message: 'Item cadastrado com sucesso!', item: populatedItem });
-    } catch (error) { res.status(500).json({ message: 'Erro ao cadastrar o item.', error }); }
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao cadastrar o item.', error });
+    }
 });
 
-// Rota de Inventário (PUT) - ATUALIZADA COM HISTÓRICO
+// ✅ PUT Inventário com histórico de setores corrigido
 app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
     try {
         const updatedData = { ...req.body };
-        if (req.file) { updatedData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`; }
+        if (req.file) updatedData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`;
+        
+        const itemAntes = await InventoryItem.findById(req.params.id);
+        if (!itemAntes) return res.status(404).json({ message: 'Item não encontrado.' });
 
-        const itemAntesDaAtualizacao = await InventoryItem.findById(req.params.id);
-        if (!itemAntesDaAtualizacao) { return res.status(404).json({ message: 'Item não encontrado.' }); }
+        const setorAnterior = itemAntes.setor.toString();
+        const setorNovo = updatedData.setor;
 
-        // Verifica se o setor foi alterado
-        if (itemAntesDaAtualizacao.setor.toString() !== updatedData.setor) {
-            updatedData.$push = {
-                historicoSetores: { setor: updatedData.setor, dataMudanca: new Date() }
-            };
+        // Se o setor mudou, atualiza o histórico
+        if (setorAnterior !== setorNovo) {
+            await InventoryItem.findByIdAndUpdate(req.params.id, {
+                $push: {
+                    historicoSetores: {
+                        setor: setorNovo,
+                        dataMudanca: new Date()
+                    }
+                }
+            });
         }
 
-        const updatedItem = await InventoryItem.findByIdAndUpdate(req.params.id, updatedData, { new: true })
-            .populate('setor')
-            .populate({ path: 'historicoSetores.setor', model: 'Sector' });
-            
+        const updatedItem = await InventoryItem.findByIdAndUpdate(
+            req.params.id,
+            updatedData,
+            { new: true }
+        )
+        .populate('setor')
+        .populate({ path: 'historicoSetores.setor', model: 'Sector' });
+
         res.status(200).json({ message: 'Item atualizado com sucesso!', item: updatedItem });
-    } catch (error) { 
-        res.status(500).json({ message: 'Erro ao atualizar o item.', error }); 
+
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao atualizar o item.', error: error.message });
     }
 });
 
-// Rota de Busca por Patrimônio
+// Buscar por número de patrimônio
 app.get('/api/inventory/by-patrimonio/:patrimonioId', async (req, res) => {
     try {
-        const { patrimonioId } = req.params;
-        const item = await InventoryItem.findOne({ numeroPatrimonio: patrimonioId })
+        const item = await InventoryItem.findOne({ numeroPatrimonio: req.params.patrimonioId })
             .populate('setor')
             .populate({ path: 'historicoSetores.setor', model: 'Sector' });
 
-        if (!item) {
-            return res.status(404).json({ message: 'Nenhum item encontrado com este número de patrimônio.' });
-        }
+        if (!item) return res.status(404).json({ message: 'Nenhum item encontrado com este número de patrimônio.' });
 
-        let itemComDepreciacao = item.toObject();
+        let itemObj = item.toObject();
         if (item.entrada && item.valor > 0 && item.taxaDepreciacao >= 0) {
             const hoje = new Date();
             const dataEntrada = new Date(item.entrada);
-            const diffTime = Math.abs(hoje - dataEntrada);
-            const diffAnos = diffTime / (1000 * 60 * 60 * 24 * 365.25);
-            const taxaDecimal = item.taxaDepreciacao / 100;
-            const depreciacaoTotal = item.valor * taxaDecimal * diffAnos;
-            itemComDepreciacao.valorAtual = Math.max(0, item.valor - depreciacaoTotal);
+            const diffAnos = (hoje - dataEntrada) / (1000 * 60 * 60 * 24 * 365.25);
+            const depreciacaoTotal = item.valor * (item.taxaDepreciacao / 100) * diffAnos;
+            itemObj.valorAtual = Math.max(0, item.valor - depreciacaoTotal);
         } else {
-            itemComDepreciacao.valorAtual = item.valor;
+            itemObj.valorAtual = item.valor;
         }
 
-        res.json(itemComDepreciacao);
-    } catch (error) { 
-        res.status(500).json({ message: "Erro ao buscar item por patrimônio.", error: error.message }); 
+        res.json(itemObj);
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao buscar item por patrimônio.", error: error.message });
     }
 });
 
-// Rota de Inventário (DELETE)
+// DELETE Inventário
 app.delete('/api/inventory/:id', async (req, res) => {
     try {
         const deletedItem = await InventoryItem.findByIdAndDelete(req.params.id);
         if (!deletedItem) return res.status(404).json({ message: 'Item não encontrado.' });
         res.status(200).json({ message: 'Item apagado com sucesso!' });
-    } catch (error) { res.status(500).json({ message: 'Erro ao apagar o item.', error }); }
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao apagar o item.', error });
+    }
 });
 
-// --- FUNÇÃO PRINCIPAL DE INICIALIZAÇÃO ---
+// Inicialização
 const startServer = async () => {
     try {
         await mongoose.connect(MONGO_URI);

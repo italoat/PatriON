@@ -1,4 +1,4 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO COM CORREÇÃO DO BUG DE EDIÇÃO)
+// frontend/src/components/InventoryScreen.js (VERSÃO FINAL COM CORREÇÃO DO BUG DE EDIÇÃO DE SETOR)
 
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,10 +11,12 @@ import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
-// --- (Funções de formatação e hook useWindowSize - sem alterações) ---
+// --- FUNÇÕES DE FORMATAÇÃO ---
 const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toISOString().split('T')[0]; };
 const formatDateForDisplay = (dateString) => { if (!dateString) return 'N/A'; const date = new Date(dateString); return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); };
 const formatCurrency = (value) => { if (typeof value !== 'number') return 'R$ 0,00'; return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
+
+// --- HOOK PARA OBSERVAR O TAMANHO DA JANELA ---
 function useWindowSize() { const [size, setSize] = useState([0, 0]); useLayoutEffect(() => { function updateSize() { setSize([window.innerWidth, window.innerHeight]); } window.addEventListener('resize', updateSize); updateSize(); return () => window.removeEventListener('resize', updateSize); }, []); return { width: size[0], height: size[1] }; }
 
 const InventoryScreen = () => {
@@ -48,9 +50,10 @@ const InventoryScreen = () => {
     useEffect(() => { fetchInventory(); }, [fetchInventory]);
 
     const openModal = (item) => {
+        // CORREÇÃO APLICADA AQUI, CONFORME SUGERIDO
+        const setorId = typeof item.setor === 'object' && item.setor !== null ? item.setor._id : item.setor || '';
         setSelectedItem(item);
-        // CORREÇÃO: Ao abrir, já preparamos o editableData com o setor como um ID (string)
-        setEditableData({ ...item, setor: item.setor ? item.setor._id : '' }); 
+        setEditableData({ ...item, setor: setorId }); 
         setIsEditMode(false);
         setNewFile(null);
     };
@@ -72,18 +75,15 @@ const InventoryScreen = () => {
     const handleUpdate = useCallback(() => {
         const dataToSubmit = new FormData();
         Object.keys(editableData).forEach(key => {
-            // Agora podemos enviar todos os campos diretamente, pois 'setor' já é um ID
-            if (key !== '_id' && key !== '__v' && key !== 'valorAtual') {
+            if (key !== '_id' && key !== '__v' && key !== 'valorAtual' && key !== 'historicoSetores') {
                 dataToSubmit.append(key, editableData[key]);
             }
         });
         if (newFile) { dataToSubmit.append('foto', newFile); }
 
-        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit)
         .then(response => {
-            fetchInventory(); // Recarrega toda a lista para garantir consistência total
+            fetchInventory();
             alert('Item atualizado com sucesso!');
             closeModal();
         })
