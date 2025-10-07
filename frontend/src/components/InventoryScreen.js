@@ -125,23 +125,64 @@ const InventoryScreen = () => {
         setIsScannerOpen(false);
     };
 
-    const handlePrintQr = () => {
-        const qrCodeElement = document.getElementById('qr-code-to-print');
-        if (qrCodeElement) {
-            const printableContent = qrCodeElement.cloneNode(true);
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write('<html><head><title>Imprimir QR Code</title>');
-            printWindow.document.write('<style>body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; font-family: sans-serif; } svg { width: 80%; height: auto; } h2, p { color: black; } </style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.body.appendChild(printableContent);
-            printWindow.document.write('</body></html>');
+     const handlePrintQr = () => {
+        if (!selectedItem) return;
+
+        const svgElement = document.querySelector('.qr-code-container svg');
+        if (!svgElement) {
+            alert('QR Code não encontrado na tela.');
+            return;
+        }
+
+        try {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBase64 = btoa(unescape(encodeURIComponent(svgData)));
+            const printContent = `
+                <html>
+                    <head>
+                        <title>QR Code - ${selectedItem.numeroPatrimonio}</title>
+                        <style>
+                            body {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                font-family: Arial, sans-serif;
+                                height: 100vh;
+                                text-align: center;
+                                color: #000;
+                            }
+                            h2, p { margin: 8px 0; }
+                            img { width: 250px; height: 250px; margin-top: 20px; }
+                            @media print {
+                                body { margin: 0; }
+                                button { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>${selectedItem.descricao}</h2>
+                        <p>Patrimônio: ${selectedItem.numeroPatrimonio}</p>
+                        <img src="data:image/svg+xml;base64,${svgBase64}" alt="QR Code" />
+                    </body>
+                </html>
+            `;
+
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.open();
+            printWindow.document.write(printContent);
             printWindow.document.close();
+
             printWindow.focus();
-            printWindow.print();
-            printWindow.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        } catch (error) {
+            console.error('Erro ao gerar impressão do QR Code:', error);
+            alert('Erro ao preparar a impressão do QR Code.');
         }
     };
-
     if (loading) { return <div><Navbar /><p className="loading-message">Carregando...</p></div>; }
 
     return (
