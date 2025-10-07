@@ -146,8 +146,8 @@ const DashboardScreen = () => {
     // --- OPÇÕES DE ESTILO PARA OS GRÁFICOS NO TEMA ESCURO ---
     const chartDefaultOptions = {
         scales: {
-            x: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } },
-            y: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } }
+            x: { ticks: { color: 'var(--primary-text-color)' }, grid: { color: 'var(--border-color)' } },
+            y: { ticks: { color: 'var(--primary-text-color)' }, grid: { color: 'var(--border-color)' } }
         },
         plugins: {
             legend: { labels: { color: 'var(--primary-text-color)' } }
