@@ -1,4 +1,4 @@
-// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE COM RÓTULOS CORRIGIDOS)
+// frontend/src/components/DashboardScreen.js (VERSÃO DARK MODE COM NOVO GRÁFICO)
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import axios from 'axios';
@@ -62,7 +62,15 @@ const DashboardScreen = () => {
 
     useEffect(() => {
         if (!chartFilter.type || !chartFilter.value) { setFilteredInventory(inventoryData); } 
-        else { const filtered = inventoryData.filter(item => (item.setor && item.setor.nome.trim() === chartFilter.value) || (item[chartFilter.type] || '').trim() === chartFilter.value); setFilteredInventory(filtered); }
+        else { 
+            const filtered = inventoryData.filter(item => {
+                if (chartFilter.type === 'setor') {
+                    return item.setor && item.setor.nome.trim() === chartFilter.value;
+                }
+                return (item[chartFilter.type] || '').trim() === chartFilter.value;
+            });
+            setFilteredInventory(filtered);
+        }
     }, [inventoryData, chartFilter]);
 
     const processDataForChart = (columnName) => filteredInventory.reduce((acc, item) => { const key = (item[columnName] || 'Não Definido').trim(); acc[key] = (acc[key] || 0) + 1; return acc; }, {});
@@ -95,8 +103,47 @@ const DashboardScreen = () => {
         }
     };
     
-    const handleGeneratePdf = () => { /* (código existente, sem alterações) */ };
+    const handleGeneratePdf = () => {
+        setIsGeneratingPdf(true);
+        const reportElement = document.getElementById('dashboard-report');
+        const titleElement = reportElement.querySelector('.dashboard-title');
+        const originalTitle = titleElement.innerText;
+        titleElement.innerText = 'Relatório de Patrimônio';
+        document.body.classList.add('pdf-generating');
+        
+        html2canvas(reportElement, { useCORS: true, scale: 1.5 })
+            .then(canvas => {
+                titleElement.innerText = originalTitle;
+                document.body.classList.remove('pdf-generating');
+                const imgData = canvas.toDataURL('image/jpeg', 0.7);
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+                const totalPdfHeight = canvasHeight * pdfWidth / canvasWidth;
+                let position = 0;
+                let heightLeft = totalPdfHeight;
+                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight, undefined, 'FAST');
+                heightLeft -= pdfHeight;
+                while (heightLeft > 0) {
+                    position = -heightLeft;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalPdfHeight, undefined, 'FAST');
+                    heightLeft -= pdfHeight;
+                }
+                pdf.save('relatorio-patrimonio.pdf');
+                setIsGeneratingPdf(false);
+            })
+            .catch(err => {
+                titleElement.innerText = originalTitle;
+                document.body.classList.remove('pdf-generating');
+                setIsGeneratingPdf(false);
+                alert("Ocorreu um erro ao gerar o PDF.");
+            });
+    };
 
+    // --- OPÇÕES DE ESTILO PARA OS GRÁFICOS NO TEMA ESCURO ---
     const chartDefaultOptions = {
         scales: {
             x: { ticks: { color: 'var(--secondary-text-color)' }, grid: { color: 'var(--border-color)' } },
@@ -107,28 +154,6 @@ const DashboardScreen = () => {
         }
     };
     
-    const topBensChartOptions = {
-        ...chartDefaultOptions,
-        responsive: true,
-        indexAxis: 'y',
-        plugins: {
-            ...chartDefaultOptions.plugins,
-            legend: { display: false },
-            datalabels: {
-                display: width > 768,
-                anchor: 'end',
-                align: 'right',
-                offset: 8,
-                color: 'white', // CORREÇÃO: Fonte branca
-                backgroundColor: (context) => context.dataset.backgroundColor, // CORREÇÃO: Fundo da cor da barra
-                borderRadius: 4,
-                padding: 4,
-                font: { weight: 'bold' }
-            }
-        },
-        layout: { padding: { right: width > 768 ? 80 : 10 } }
-    };
-
     const valueBySectorOptions = {
         ...chartDefaultOptions,
         indexAxis: 'y',
@@ -136,7 +161,13 @@ const DashboardScreen = () => {
         plugins: {
             ...chartDefaultOptions.plugins,
             legend: { display: false },
-            tooltip: { callbacks: { label: (context) => formatCurrency(context.raw) } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return formatCurrency(context.raw);
+                    }
+                }
+            },
             datalabels: {
                 display: width > 768,
                 anchor: 'end',
@@ -182,7 +213,7 @@ const DashboardScreen = () => {
                                 <div className="dual-chart-container">
                                     <div className="chart-wrapper">
                                         <h3>Top Bens por Identificação</h3>
-                                        <Bar ref={barChartRef} data={barChartData} onClick={(e) => handleChartClick(e, barChartRef, 'outraIdentificacao')} options={topBensChartOptions} />
+                                        <Bar ref={barChartRef} data={barChartData} onClick={(e) => handleChartClick(e, barChartRef, 'outraIdentificacao')} options={{...chartDefaultOptions, indexAxis: 'y', plugins: {...chartDefaultOptions.plugins, legend: {display: false}, datalabels: { display: false } }}} />
                                     </div>
                                     <div className="chart-wrapper">
                                         <h3>Valor Contábil por Setor</h3>
@@ -229,3 +260,4 @@ const DashboardScreen = () => {
 };
 
 export default DashboardScreen;
+
