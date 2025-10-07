@@ -38,10 +38,8 @@ body.pdf-generating { background-image: none !important; background-color: white
 body.pdf-generating #dashboard-report { margin-top: 2rem; }
 body.pdf-generating .dashboard-title,
 body.pdf-generating .chart-card h3,
-body.pdf-generating .table-header h2,
-body.pdf-generating .inventory-table th,
-body.pdf-generating .inventory-table td { 
-    color: #333; 
+body.pdf-generating .table-header h2 { 
+    color: #001f5c; 
 }
 body.pdf-generating .chart-card,
 body.pdf-generating .table-container {
@@ -50,6 +48,14 @@ body.pdf-generating .table-container {
 }
 body.pdf-generating .inventory-table thead {
     background-color: #f2f2f2;
+}
+body.pdf-generating .inventory-table th,
+body.pdf-generating .inventory-table td {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+body.pdf-generating .inventory-table tbody tr:hover {
+    background-color: transparent;
 }
 
 
@@ -66,7 +72,7 @@ body.pdf-generating .inventory-table thead {
 }
 
 .dashboard-title { text-align: center; color: var(--primary-text-color); margin-bottom: 1.5rem; font-size: 2.5rem; }
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem; }
 
 .chart-card { 
     background-color: var(--content-bg-color); 
@@ -77,26 +83,10 @@ body.pdf-generating .inventory-table thead {
     flex-direction: column; 
 }
 
-.span-two-columns {
-    grid-column: 1 / -1;
-}
-
-.dual-chart-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
-    width: 100%;
-}
-
-.chart-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
 .chart-card h3 { text-align: center; margin-top: 0; margin-bottom: 1.5rem; color: var(--primary-text-color); }
 .chart-card canvas { cursor: pointer; }
 .loading-message { text-align: center; font-size: 1.5rem; padding: 3rem; }
+.full-width-chart { grid-column: 1 / -1; }
 .table-section { margin-top: 2rem; }
 .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 .table-header h2 { color: var(--primary-text-color); margin: 0; }
@@ -115,19 +105,19 @@ body.pdf-generating .inventory-table thead {
     overflow-x: auto; 
 }
 .inventory-table { width: 100%; border-collapse: collapse; }
-.inventory-table thead { background-color: #1a2c42; }
+.inventory-table thead { background-color: #1a2c42; /* Fundo um pouco mais escuro que o card */ }
 .inventory-table th { color: var(--primary-text-color); }
 .inventory-table th, .inventory-table td { 
     padding: 1rem 1.5rem; 
     text-align: left; 
     border-bottom: 1px solid var(--border-color); 
-    color: var(--secondary-text-color);
+    color: var(--secondary-text-color); /* Cor do texto das células */
 }
 .inventory-table tbody tr { transition: background-color 0.2s ease-in-out; }
 .inventory-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
 
-@media (max-width: 1200px) {
-    .charts-grid, .dual-chart-container {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 992px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .dashboard-content { padding: 1rem; }
+    .header-actions { flex-direction: column; gap: 1rem; }
 }
