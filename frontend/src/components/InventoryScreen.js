@@ -1,177 +1,85 @@
-// frontend/src/components/InventoryScreen.js (VERSÃO CORRIGIDA - SCANNER NÃO ABRE AUTOMATICAMENTE)
-
-import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import Navbar from './Navbar';
-import QrScanner from './QrScanner';
 import { QRCodeSVG } from 'qrcode.react';
+import QrScanner from './QrScanner';
 import './InventoryScreen.css';
 
 Modal.setAppElement('#root');
 
-// --- FUNÇÕES DE FORMATAÇÃO ---
-const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toISOString().split('T')[0]; };
-const formatDateForDisplay = (dateString) => { if (!dateString) return 'N/A'; const date = new Date(dateString); return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); };
-const formatCurrency = (value) => { if (typeof value !== 'number') return 'R$ 0,00'; return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
-
-// --- HOOK PARA OBSERVAR O TAMANHO DA JANELA ---
-function useWindowSize() {
-    const [size, setSize] = useState([0, 0]);
-    useLayoutEffect(() => {
-        function updateSize() {
-            setSize([window.innerWidth, window.innerHeight]);
-        }
-        window.addEventListener('resize', updateSize);
-        updateSize();
-        return () => window.removeEventListener('resize', updateSize);
-    }, []);
-    return { width: size[0], height: size[1] };
-}
-
 const InventoryScreen = () => {
     const [inventory, setInventory] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [filteredInventory, setFilteredInventory] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editableData, setEditableData] = useState(null);
-    const [allSectors, setAllSectors] = useState([]);
-    const [newFile, setNewFile] = useState(null);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [isScannerOpen, setIsScannerOpen] = useState(false); // <-- scanner fechado por padrão
-    const [searchPatrimonio, setSearchPatrimonio] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-    const navigate = useNavigate();
-    const { width } = useWindowSize();
-    const isMobile = width <= 768;
-
-    // --- Carrega setores ---
+    // 🔹 Carrega o inventário do localStorage
     useEffect(() => {
-        axios.get('https://patrion.onrender.com/api/sectors')
-            .then(res => setAllSectors(res.data))
-            .catch(err => console.error('Erro ao carregar setores:', err));
+        const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
+        setInventory(storedInventory);
+        setFilteredInventory(storedInventory);
     }, []);
 
-    // --- Carrega inventário ---
-    const fetchInventory = useCallback(() => {
-        setLoading(true);
-        axios.get('https://patrion.onrender.com/api/inventory')
-            .then(res => setInventory(res.data))
-            .catch(error => console.error("Erro ao buscar inventário:", error))
-            .finally(() => setLoading(false));
-    }, []);
+    // 🔹 Atualiza o filtro de busca
+    useEffect(() => {
+        const results = inventory.filter(item =>
+            item.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.numeroPatrimonio.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredInventory(results);
+    }, [searchTerm, inventory]);
 
-    useEffect(() => { fetchInventory(); }, [fetchInventory]);
-
-    // --- Modal principal ---
-    const openModal = (item) => {
-        const setorId = typeof item.setor === 'object' && item.setor !== null ? item.setor._id : item.setor || '';
+    // 🔹 Editar item
+    const handleEdit = (item) => {
         setSelectedItem(item);
-        setEditableData({ ...item, setor: setorId });
-        setIsEditMode(false);
-        setNewFile(null);
+        setIsModalOpen(true);
     };
 
-    const closeModal = () => {
-        setSelectedItem(null);
-        setEditableData(null);
-        setIsEditMode(false);
-        setNewFile(null);
-        setIsQrModalOpen(false);
-        setIsHistoryModalOpen(false);
-        setIsImageViewerOpen(false);
-        setIsScannerOpen(false); // <-- garante fechamento do scanner ao sair
+    // 🔹 Salvar item editado
+    const handleSave = () => {
+        const updated = inventory.map(item =>
+            item.numeroPatrimonio === selectedItem.numeroPatrimonio ? selectedItem : item
+        );
+        setInventory(updated);
+        setFilteredInventory(updated);
+        localStorage.setItem('inventory', JSON.stringify(updated));
+        setIsModalOpen(false);
     };
 
-    const handleEditChange = (e) => {
-        const { name, value, type } = e.target;
-        const finalValue = type === 'number' ? parseFloat(value) : value;
-        setEditableData(prev => ({ ...prev, [name]: finalValue }));
+    // 🔹 Excluir item
+    const handleDelete = (numeroPatrimonio) => {
+        const updated = inventory.filter(item => item.numeroPatrimonio !== numeroPatrimonio);
+        setInventory(updated);
+        setFilteredInventory(updated);
+        localStorage.setItem('inventory', JSON.stringify(updated));
     };
 
-    const handleFileChange = (e) => setNewFile(e.target.files[0]);
-
-    // --- Atualização de item ---
-    const handleUpdate = useCallback(() => {
-        const dataToSubmit = new FormData();
-        Object.keys(editableData).forEach(key => {
-            if (key !== '_id' && key !== '__v' && key !== 'valorAtual' && key !== 'historicoSetores') {
-                dataToSubmit.append(key, editableData[key]);
-            }
-        });
-        if (newFile) dataToSubmit.append('foto', newFile);
-
-        axios.put(`https://patrion.onrender.com/api/inventory/${selectedItem._id}`, dataToSubmit)
-            .then(() => {
-                fetchInventory();
-                alert('Item atualizado com sucesso!');
-                closeModal();
-            })
-            .catch(error => {
-                console.error("Erro ao atualizar o item:", error);
-                alert('Falha ao salvar as alterações.');
-            });
-    }, [editableData, selectedItem, newFile, fetchInventory]);
-
-    // --- Exclusão de item ---
-    const handleDelete = useCallback((itemToDelete) => {
-        if (!window.confirm(`Tem certeza que deseja apagar o item "${itemToDelete.descricao}"?`)) return;
-        axios.delete(`https://patrion.onrender.com/api/inventory/${itemToDelete._id}`)
-            .then(() => {
-                fetchInventory();
-                alert('Item apagado com sucesso!');
-                closeModal();
-            })
-            .catch(() => alert('Falha ao apagar o item.'));
-    }, [fetchInventory]);
-
-    // --- Busca por patrimônio ---
-    const handleSearch = () => {
-        if (!searchPatrimonio) return;
-        axios.get(`https://patrion.onrender.com/api/inventory/by-patrimonio/${searchPatrimonio.trim()}`)
-            .then(response => {
-                setIsSearchModalOpen(false);
-                setSearchPatrimonio('');
-                openModal(response.data);
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 404) {
-                    if (window.confirm(`Item com patrimônio "${searchPatrimonio}" não encontrado. Deseja cadastrá-lo agora?`)) {
-                        navigate(`/cadastro?patrimonio=${searchPatrimonio}`);
-                    }
-                } else {
-                    alert('Erro ao buscar o item.');
-                }
-            });
+    // 🔹 Exibir modal com QR Code
+    const handleShowQr = (item) => {
+        setSelectedItem(item);
+        setIsQrModalOpen(true);
     };
 
-    const handleScanSuccess = (decodedText) => {
-        setSearchPatrimonio(decodedText);
-        setIsScannerOpen(false);
-    };
-
-    // --- Função de impressão do QR Code ---
+    // ✅ Correção — função de impressão do QR Code
     const handlePrintQr = () => {
         if (!selectedItem) return;
 
-        const svgElement = document.querySelector('.qr-code-container svg');
-        if (!svgElement) {
-            alert('QR Code não encontrado na tela.');
-            return;
-        }
+        const qrSVG = document.querySelector('.qr-code-container svg');
+        if (!qrSVG) return alert('QR Code não encontrado.');
 
-        const svgData = new XMLSerializer().serializeToString(svgElement);
+        const svgData = new XMLSerializer().serializeToString(qrSVG);
         const svgBase64 = btoa(svgData);
+
         const qrHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;font-family:sans-serif;">
                 <h2 style="color:black;">${selectedItem.descricao}</h2>
                 <p style="color:black;">Patrimônio: ${selectedItem.numeroPatrimonio}</p>
                 <div style="margin-top:20px;">
-                    <img src="data:image/svg+xml;base64,${svgBase64}" alt="QR Code" style="width:250px;height:250px;"/>
+                    <img src="data:image/svg+xml;base64,${svgBase64}" 
+                         alt="QR Code" 
+                         style="width:250px;height:250px;" />
                 </div>
             </div>
         `;
@@ -189,67 +97,98 @@ const InventoryScreen = () => {
         }, 400);
     };
 
-    if (loading) {
-        return (
-            <div>
-                <Navbar />
-                <p className="loading-message">Carregando...</p>
-            </div>
-        );
-    }
+    // 🔹 Sucesso no scanner
+    const handleScanSuccess = (data) => {
+        const foundItem = inventory.find(item => item.numeroPatrimonio === data);
+        if (foundItem) {
+            setSelectedItem(foundItem);
+            setIsModalOpen(true);
+        } else {
+            alert('Item não encontrado.');
+        }
+        setIsScannerOpen(false);
+    };
 
     return (
         <div className="inventory-page">
-            <Navbar />
-            <main className="inventory-content">
+            <div className="inventory-content">
                 <div className="inventory-header">
-                    <h1 className="inventory-title">Inventário Geral</h1>
-                    <button onClick={() => setIsSearchModalOpen(true)} className="search-button">
-                        <i className="fas fa-search"></i> Buscar Item
-                    </button>
+                    <h1>Inventário</h1>
+                    <div className="inventory-actions">
+                        <input
+                            type="text"
+                            placeholder="Buscar item..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <button onClick={() => setIsScannerOpen(true)}>
+                            <i className="fas fa-qrcode"></i> Ler QR
+                        </button>
+                    </div>
                 </div>
-                <div className="table-container">
-                    <table className="inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Nº Patrimônio</th>
-                                <th>Descrição do Bem</th>
-                                <th>Setor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {inventory.map(item => (
-                                <tr key={item._id} onClick={() => openModal(item)}>
-                                    <td>{item.numeroPatrimonio}</td>
-                                    <td>{item.descricao}</td>
-                                    <td>{item.setor ? item.setor.nome : 'N/A'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
 
-            {/* --- Modal de busca --- */}
-            <Modal isOpen={isSearchModalOpen} onRequestClose={() => setIsSearchModalOpen(false)} className="search-modal-content" overlayClassName="modal-overlay">
-                <h2>Buscar Patrimônio</h2>
-                <div className="search-input-group">
-                    <input
-                        type="text"
-                        placeholder="Digite o Nº do Patrimônio"
-                        value={searchPatrimonio}
-                        onChange={(e) => setSearchPatrimonio(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <button onClick={() => setIsScannerOpen(true)} className="qr-button" title="Ler QR Code">
-                        <i className="fas fa-qrcode"></i>
-                    </button>
-                </div>
-                <button onClick={handleSearch} className="search-modal-button">Buscar</button>
+                <table className="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Nº Patrimônio</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredInventory.map(item => (
+                            <tr key={item.numeroPatrimonio}>
+                                <td>{item.descricao}</td>
+                                <td>{item.numeroPatrimonio}</td>
+                                <td className="actions-cell">
+                                    <button onClick={() => handleEdit(item)} title="Editar">
+                                        <i className="fas fa-edit"></i>
+                                    </button>
+                                    <button onClick={() => handleShowQr(item)} title="QR Code">
+                                        <i className="fas fa-qrcode"></i>
+                                    </button>
+                                    <button onClick={() => handleDelete(item.numeroPatrimonio)} title="Excluir">
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* --- Modal de Edição --- */}
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
+                <h2>Editar Item</h2>
+                {selectedItem && (
+                    <>
+                        <label>Descrição</label>
+                        <input
+                            type="text"
+                            value={selectedItem.descricao}
+                            onChange={(e) =>
+                                setSelectedItem({ ...selectedItem, descricao: e.target.value })
+                            }
+                        />
+                        <label>Nº Patrimônio</label>
+                        <input type="text" value={selectedItem.numeroPatrimonio} disabled />
+                        <button onClick={handleSave}>Salvar</button>
+                    </>
+                )}
             </Modal>
 
-            {/* --- Modal de QR Code --- */}
-            <Modal isOpen={isQrModalOpen} onRequestClose={() => setIsQrModalOpen(false)} className="qr-modal-content" overlayClassName="modal-overlay">
+            {/* --- Modal do QR Code --- */}
+            <Modal
+                isOpen={isQrModalOpen}
+                onRequestClose={() => setIsQrModalOpen(false)}
+                className="modal-content"
+                overlayClassName="modal-overlay"
+            >
                 <h2>QR Code do Item</h2>
                 <div className="qr-code-container">
                     <QRCodeSVG value={selectedItem?.numeroPatrimonio || ''} size={250} />
@@ -259,7 +198,7 @@ const InventoryScreen = () => {
                 </button>
             </Modal>
 
-            {/* --- Scanner de QR (apenas quando aberto pelo botão) --- */}
+            {/* --- Scanner de QR --- */}
             {isScannerOpen && (
                 <QrScanner
                     isOpen={isScannerOpen}
