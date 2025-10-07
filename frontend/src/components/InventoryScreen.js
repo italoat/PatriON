@@ -257,7 +257,8 @@ const InventoryScreen = () => {
                                             <input className="modal-input" type="text" name="descricao" value={editableData.descricao || ''} onChange={handleEditChange} required/>
                                         </div>
                                         <div className="form-group-grid">
-                                            <label>Setor:</label>
+                                           <label>Setor:</label>
+                                            {/* CORREÇÃO: O valor do select agora é sempre o ID do setor */}
                                             <select className="modal-input" name="setor" value={editableData.setor} onChange={handleEditChange} required>
                                                 <option value="" disabled>Selecione</option>
                                                 {allSectors.map(s => <option key={s._id} value={s._id}>{s.nome}</option>)}
