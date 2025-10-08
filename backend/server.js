@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO FINAL E SEGURA COM SECRET FILES)
+// backend/server.js (VERSÃO FINAL COM BASE64)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,7 +11,6 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
-const { JWT } = require('google-auth-library');
 const stream = require('stream');
 const fs = require('fs');
 
@@ -26,26 +25,31 @@ const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
 // --- CONFIGURAÇÃO GOOGLE DRIVE ---
-// Define o caminho do arquivo de credenciais. A Render o coloca em '/etc/secrets/'.
-const KEYFILEPATH = process.env.NODE_ENV === 'production'
-    ? '/etc/secrets/credentials.json'
-    : path.join(__dirname, 'credentials.json');
-
-// Verifica se o arquivo de credenciais existe antes de continuar
-if (!fs.existsSync(KEYFILEPATH)) {
-    console.error(`ERRO: Arquivo de credenciais não encontrado em ${KEYFILEPATH}.`);
-    console.error('Certifique-se de ter configurado o Secret File na Render ou de ter o arquivo localmente para desenvolvimento.');
-    process.exit(1); // Encerra o processo se não encontrar a chave
-}
-
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-const auth = new JWT({
-    keyFile: KEYFILEPATH,
-    scopes: SCOPES,
-});
+// Função para carregar e autenticar as credenciais a partir do Base64
+const getAuthClient = () => {
+    const keyFilePath = process.env.NODE_ENV === 'production'
+        ? '/etc/secrets/google-credentials.b64'
+        : path.join(__dirname, 'google-credentials.b64'); // Para teste local, se necessário
 
+    if (!fs.existsSync(keyFilePath)) {
+        console.error(`ERRO: Arquivo de credenciais Base64 não encontrado em ${keyFilePath}.`);
+        process.exit(1);
+    }
+
+    const base64Key = fs.readFileSync(keyFilePath, 'utf8');
+    const credentialsStr = Buffer.from(base64Key, 'base64').toString('utf8');
+    const credentials = JSON.parse(credentialsStr);
+
+    return new google.auth.GoogleAuth({
+        credentials,
+        scopes: SCOPES,
+    });
+};
+
+const auth = getAuthClient();
 const drive = google.drive({ version: 'v3', auth });
 // --- FIM DA CONFIGURAÇÃO GOOGLE DRIVE ---
 
