@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO COM UPLOAD PARA O GOOGLE DRIVE)
+// backend/server.js (VERSÃO FINAL COM VARIÁVEIS DE AMBIENTE)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -24,12 +24,17 @@ const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
 // --- CONFIGURAÇÃO GOOGLE DRIVE ---
-const GOOGLE_DRIVE_FOLDER_ID = '1s8SzINqdgiR9qDfD68gpiuDhVIVBOzuq'; // IMPORTANTE: Substitua pelo ID da sua pasta
-const KEYFILEPATH = path.join(__dirname, 'credentials.json');
+const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
+const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // Formata a chave corretamente
+
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const auth = new google.auth.GoogleAuth({
-    keyFile: KEYFILEPATH,
+    credentials: {
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: GOOGLE_PRIVATE_KEY,
+    },
     scopes: SCOPES,
 });
 
@@ -39,10 +44,7 @@ const drive = google.drive({ version: 'v3', auth });
 
 app.use(cors());
 app.use(bodyParser.json());
-// A linha abaixo não é mais necessária para servir imagens locais, mas pode ser útil no futuro.
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Agora usamos o armazenamento em memória do multer
 const upload = multer({ storage: multer.memoryStorage() });
 
 let mailTransporter;
@@ -69,7 +71,6 @@ const uploadToDrive = async (fileObject) => {
             fields: 'id, webViewLink',
         });
 
-        // Torna o arquivo publicamente visível (opcional, mas necessário para visualização direta)
         await drive.permissions.create({
             fileId: data.id,
             requestBody: {
@@ -78,9 +79,11 @@ const uploadToDrive = async (fileObject) => {
             },
         });
 
-        return data.webViewLink;
+        // Retorna um link direto para visualização da imagem
+        return `https://lh3.googleusercontent.com/d/${data.id}`;
+
     } catch (error) {
-        console.error('Erro no upload para o Google Drive:', error);
+        console.error('Erro no upload para o Google Drive:', error.message);
         throw new Error('Falha ao enviar o arquivo para o Google Drive.');
     }
 };
@@ -197,7 +200,6 @@ app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     try {
         const newItemData = { ...req.body };
         
-        // Faz o upload da foto para o Google Drive se ela existir
         const fotoUrl = await uploadToDrive(req.file);
         if (fotoUrl) {
             newItemData.foto = fotoUrl;
@@ -217,12 +219,11 @@ app.post('/api/inventory', upload.single('foto'), async (req, res) => {
 });
 
 
-// PUT Inventário com upload para o Google Drive
+// PUT Inventário
 app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
     try {
         const updatedData = { ...req.body };
         
-        // Faz o upload da nova foto, se houver
         if (req.file) {
             const fotoUrl = await uploadToDrive(req.file);
             updatedData.foto = fotoUrl;
@@ -234,7 +235,6 @@ app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
         const setorAnterior = itemAntes.setor.toString();
         const setorNovo = updatedData.setor;
 
-        // Se o setor mudou, atualiza o histórico
         if (setorAnterior !== setorNovo) {
             await InventoryItem.findByIdAndUpdate(req.params.id, {
                 $push: {
