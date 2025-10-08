@@ -63,33 +63,21 @@ let mailTransporter;
 app.get('/api/debug-credentials', (req, res) => {
     console.log('--- INICIANDO DEBUG DE CREDENCIAIS ---');
     try {
-        const keyFilePath = '/etc/secrets/google-credentials.b64';
-        console.log(`Verificando caminho: ${keyFilePath}`);
+        console.log('ID DA PASTA DO DRIVE (lido da variável de ambiente):', GOOGLE_DRIVE_FOLDER_ID || 'NÃO DEFINIDO!');
+        if (!GOOGLE_DRIVE_FOLDER_ID) {
+            console.error('ERRO: A variável de ambiente GOOGLE_DRIVE_FOLDER_ID não está configurada na Render.');
+        }
 
+        const keyFilePath = '/etc/secrets/google-credentials.b64';
+        console.log(`Verificando caminho do Secret File: ${keyFilePath}`);
         if (!fs.existsSync(keyFilePath)) {
-            const errorMsg = 'ARQUIVO SECRETO NÃO ENCONTRADO!';
+            const errorMsg = 'ARQUIVO SECRETO "google-credentials.b64" NÃO ENCONTRADO!';
             console.error(errorMsg);
             return res.status(500).send(errorMsg);
         }
         console.log('Arquivo secreto encontrado.');
 
-        const base64Key = fs.readFileSync(keyFilePath, 'utf8');
-        console.log('Conteúdo do Secret File (Base64) (primeiros 50 chars):', base64Key.substring(0, 50) + '...');
-
-        const credentialsStr = Buffer.from(base64Key, 'base64').toString('utf8');
-        console.log('--- CONTEÚDO DECODIFICADO (DEVE SER UM JSON COMPLETO) ---');
-        console.log(credentialsStr);
-        console.log('--- FIM DO CONTEÚDO DECODIFICADO ---');
-
-        const credentials = JSON.parse(credentialsStr);
-        console.log('JSON parseado com sucesso.');
-        console.log('client_email:', credentials.client_email);
-        console.log('private_key (início):', credentials.private_key.substring(0, 40) + '...');
-        console.log('private_key (fim):', '...' + credentials.private_key.slice(-40));
-        console.log('A chave privada contém "\\n"?', credentials.private_key.includes('\n'));
-        console.log('A chave privada termina com "-----END PRIVATE KEY-----"?', credentials.private_key.trim().endsWith('-----END PRIVATE KEY-----'));
-        
-        res.status(200).send('Debug executado com sucesso. Verifique os logs do servidor na Render.');
+        res.status(200).send('Debug executado. Verifique os logs do servidor na Render para ver o ID da pasta.');
     } catch (error) {
         console.error('--- ERRO NO DEBUG DE CREDENCIAIS ---', error);
         res.status(500).send(`Ocorreu um erro durante o debug: ${error.message}`);
