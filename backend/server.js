@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO FINAL COM BASE64)
+// backend/server.js (VERSÃO FINAL COM SUPORTE A SHARED DRIVES)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -28,95 +28,51 @@ const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mon
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-// Função para carregar e autenticar as credenciais a partir do Base64
 const getAuthClient = () => {
-    const keyFilePath = process.env.NODE_ENV === 'production'
-        ? '/etc/secrets/google-credentials.b64'
-        : path.join(__dirname, 'google-credentials.b64'); // Para teste local, se necessário
-
+    const keyFilePath = '/etc/secrets/google-credentials.b64';
     if (!fs.existsSync(keyFilePath)) {
-        console.error(`ERRO: Arquivo de credenciais Base64 não encontrado em ${keyFilePath}.`);
+        console.error(`ERRO CRÍTICO: Secret File não encontrado em ${keyFilePath}.`);
         process.exit(1);
     }
-
-    const base64Key = fs.readFileSync(keyFilePath, 'utf8');
-    const credentialsStr = Buffer.from(base64Key, 'base64').toString('utf8');
-    const credentials = JSON.parse(credentialsStr);
-
-    return new google.auth.GoogleAuth({
-        credentials,
-        scopes: SCOPES,
-    });
+    try {
+        const base64Key = fs.readFileSync(keyFilePath, 'utf8');
+        const credentialsStr = Buffer.from(base64Key, 'base64').toString('utf8');
+        const credentials = JSON.parse(credentialsStr);
+        return new google.auth.GoogleAuth({ credentials, scopes: SCOPES });
+    } catch (error) {
+        console.error('ERRO CRÍTICO ao decodificar ou parsear a credencial Base64:', error);
+        process.exit(1);
+    }
 };
 
 const auth = getAuthClient();
 const drive = google.drive({ version: 'v3', auth });
 // --- FIM DA CONFIGURAÇÃO GOOGLE DRIVE ---
 
-
 app.use(cors());
 app.use(bodyParser.json());
-
 const upload = multer({ storage: multer.memoryStorage() });
-
 let mailTransporter;
-app.get('/api/debug-credentials', (req, res) => {
-    console.log('--- INICIANDO DEBUG DE CREDENCIAIS ---');
-    try {
-        console.log('ID DA PASTA DO DRIVE (lido da variável de ambiente):', GOOGLE_DRIVE_FOLDER_ID || 'NÃO DEFINIDO!');
-        if (!GOOGLE_DRIVE_FOLDER_ID) {
-            console.error('ERRO: A variável de ambiente GOOGLE_DRIVE_FOLDER_ID não está configurada na Render.');
-        }
 
-        const keyFilePath = '/etc/secrets/google-credentials.b64';
-        console.log(`Verificando caminho do Secret File: ${keyFilePath}`);
-        if (!fs.existsSync(keyFilePath)) {
-            const errorMsg = 'ARQUIVO SECRETO "google-credentials.b64" NÃO ENCONTRADO!';
-            console.error(errorMsg);
-            return res.status(500).send(errorMsg);
-        }
-        console.log('Arquivo secreto encontrado.');
-
-        res.status(200).send('Debug executado. Verifique os logs do servidor na Render para ver o ID da pasta.');
-    } catch (error) {
-        console.error('--- ERRO NO DEBUG DE CREDENCIAIS ---', error);
-        res.status(500).send(`Ocorreu um erro durante o debug: ${error.message}`);
-    } finally {
-        console.log('--- FIM DO DEBUG DE CREDENCIAIS ---');
-    }
-});
 // Função para fazer upload para o Google Drive
 const uploadToDrive = async (fileObject) => {
-    if (!fileObject) {
-        return null;
-    }
-    
+    if (!fileObject) return null;
     const bufferStream = new stream.PassThrough();
     bufferStream.end(fileObject.buffer);
 
     try {
         const { data } = await drive.files.create({
-            media: {
-                mimeType: fileObject.mimetype,
-                body: bufferStream,
-            },
-            requestBody: {
-                name: fileObject.originalname,
-                parents: [GOOGLE_DRIVE_FOLDER_ID],
-            },
+            media: { mimeType: fileObject.mimetype, body: bufferStream },
+            requestBody: { name: fileObject.originalname, parents: [GOOGLE_DRIVE_FOLDER_ID] },
             fields: 'id, webContentLink',
+            supportsAllDrives: true, // <-- ADIÇÃO IMPORTANTE
         });
-
         await drive.permissions.create({
             fileId: data.id,
-            requestBody: {
-                role: 'reader',
-                type: 'anyone',
-            },
+            requestBody: { role: 'reader', type: 'anyone' },
+            supportsAllDrives: true, // <-- ADIÇÃO IMPORTANTE
         });
-
         return data.webContentLink;
-
     } catch (error) {
         console.error('Erro no upload para o Google Drive:', error.message);
         if (error.errors) console.error('Detalhes do erro do Google:', error.errors);
@@ -125,7 +81,7 @@ const uploadToDrive = async (fileObject) => {
 };
 
 
-// --- ROTAS --- (As rotas abaixo permanecem inalteradas)
+// --- ROTAS ---
 
 // Login
 app.post('/api/login', async (req, res) => {
