@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO CORRIGIDA PARA CONTA PESSOAL GOOGLE)
+// backend/server.js (VERSÃO FINAL PARA VARIÁVEIS DE AMBIENTE)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -12,7 +12,6 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 const stream = require('stream');
-const fs = require('fs');
 
 const User = require('./models/User');
 const InventoryItem = require('./models/InventoryItem');
@@ -21,31 +20,25 @@ const setupEmailService = require('./email-service.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
-const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
+const JWT_SECRET = process.env.JWT_SECRET;
+const MONGO_URI = process.env.MONGO_URI;
 
 // --- CONFIGURAÇÃO GOOGLE DRIVE ---
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
+// A linha abaixo é a correção crucial. Ela transforma o texto "\\n" em quebras de linha reais.
+const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-const getAuthClient = () => {
-    const keyFilePath = '/etc/secrets/google-credentials.b64';
-    if (!fs.existsSync(keyFilePath)) {
-        console.error(`ERRO CRÍTICO: Secret File não encontrado em ${keyFilePath}.`);
-        process.exit(1);
-    }
-    try {
-        const base64Key = fs.readFileSync(keyFilePath, 'utf8');
-        const credentialsStr = Buffer.from(base64Key, 'base64').toString('utf8');
-        const credentials = JSON.parse(credentialsStr);
-        return new google.auth.GoogleAuth({ credentials, scopes: SCOPES });
-    } catch (error) {
-        console.error('ERRO CRÍTICO ao decodificar ou parsear a credencial Base64:', error);
-        process.exit(1);
-    }
-};
+const auth = new google.auth.GoogleAuth({
+    credentials: {
+        client_email: GOOGLE_CLIENT_EMAIL,
+        private_key: GOOGLE_PRIVATE_KEY,
+    },
+    scopes: SCOPES,
+});
 
-const auth = getAuthClient();
 const drive = google.drive({ version: 'v3', auth });
 // --- FIM DA CONFIGURAÇÃO GOOGLE DRIVE ---
 
@@ -65,12 +58,10 @@ const uploadToDrive = async (fileObject) => {
             media: { mimeType: fileObject.mimetype, body: bufferStream },
             requestBody: { name: fileObject.originalname, parents: [GOOGLE_DRIVE_FOLDER_ID] },
             fields: 'id, webContentLink',
-            // supportsAllDrives: true, // REMOVIDO
         });
         await drive.permissions.create({
             fileId: data.id,
             requestBody: { role: 'reader', type: 'anyone' },
-            // supportsAllDrives: true, // REMOVIDO
         });
         return data.webContentLink;
     } catch (error) {
@@ -79,7 +70,6 @@ const uploadToDrive = async (fileObject) => {
         throw new Error('Falha ao enviar o arquivo para o Google Drive.');
     }
 };
-
 
 // --- ROTAS ---
 
