@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO COM LÓGICA DE HISTÓRICO CORRIGIDA)
+// backend/server.js (VERSÃO COM UPLOAD PARA O GOOGLE DRIVE)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -10,6 +10,8 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
+const stream = require('stream');
 
 const User = require('./models/User');
 const InventoryItem = require('./models/InventoryItem');
@@ -21,20 +23,68 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
+// --- CONFIGURAÇÃO GOOGLE DRIVE ---
+const GOOGLE_DRIVE_FOLDER_ID = '1s8SzINqdgiR9qDfD68gpiuDhVIVBOzuq'; // IMPORTANTE: Substitua pelo ID da sua pasta
+const KEYFILEPATH = path.join(__dirname, 'credentials.json');
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
+
+const auth = new google.auth.GoogleAuth({
+    keyFile: KEYFILEPATH,
+    scopes: SCOPES,
+});
+
+const drive = google.drive({ version: 'v3', auth });
+// --- FIM DA CONFIGURAÇÃO GOOGLE DRIVE ---
+
+
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// A linha abaixo não é mais necessária para servir imagens locais, mas pode ser útil no futuro.
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+// Agora usamos o armazenamento em memória do multer
+const upload = multer({ storage: multer.memoryStorage() });
 
 let mailTransporter;
+
+// Função para fazer upload para o Google Drive
+const uploadToDrive = async (fileObject) => {
+    if (!fileObject) {
+        return null;
+    }
+    
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(fileObject.buffer);
+
+    try {
+        const { data } = await drive.files.create({
+            media: {
+                mimeType: fileObject.mimetype,
+                body: bufferStream,
+            },
+            requestBody: {
+                name: fileObject.originalname,
+                parents: [GOOGLE_DRIVE_FOLDER_ID],
+            },
+            fields: 'id, webViewLink',
+        });
+
+        // Torna o arquivo publicamente visível (opcional, mas necessário para visualização direta)
+        await drive.permissions.create({
+            fileId: data.id,
+            requestBody: {
+                role: 'reader',
+                type: 'anyone',
+            },
+        });
+
+        return data.webViewLink;
+    } catch (error) {
+        console.error('Erro no upload para o Google Drive:', error);
+        throw new Error('Falha ao enviar o arquivo para o Google Drive.');
+    }
+};
+
 
 // --- ROTAS ---
 
@@ -146,7 +196,13 @@ app.get('/api/inventory', async (req, res) => {
 app.post('/api/inventory', upload.single('foto'), async (req, res) => {
     try {
         const newItemData = { ...req.body };
-        if (req.file) newItemData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`;
+        
+        // Faz o upload da foto para o Google Drive se ela existir
+        const fotoUrl = await uploadToDrive(req.file);
+        if (fotoUrl) {
+            newItemData.foto = fotoUrl;
+        }
+
         newItemData.historicoSetores = [{ setor: newItemData.setor, dataMudanca: new Date() }];
         const newItem = new InventoryItem(newItemData);
         await newItem.save();
@@ -155,15 +211,22 @@ app.post('/api/inventory', upload.single('foto'), async (req, res) => {
             .populate({ path: 'historicoSetores.setor', model: 'Sector' });
         res.status(201).json({ message: 'Item cadastrado com sucesso!', item: populatedItem });
     } catch (error) {
-        res.status(500).json({ message: 'Erro ao cadastrar o item.', error });
+        console.error('Erro detalhado ao cadastrar item:', error);
+        res.status(500).json({ message: error.message || 'Erro ao cadastrar o item.', error });
     }
 });
 
-// ✅ PUT Inventário com histórico de setores corrigido
+
+// PUT Inventário com upload para o Google Drive
 app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
     try {
         const updatedData = { ...req.body };
-        if (req.file) updatedData.foto = `https://patrion.onrender.com/uploads/${req.file.filename}`;
+        
+        // Faz o upload da nova foto, se houver
+        if (req.file) {
+            const fotoUrl = await uploadToDrive(req.file);
+            updatedData.foto = fotoUrl;
+        }
         
         const itemAntes = await InventoryItem.findById(req.params.id);
         if (!itemAntes) return res.status(404).json({ message: 'Item não encontrado.' });
@@ -194,9 +257,11 @@ app.put('/api/inventory/:id', upload.single('foto'), async (req, res) => {
         res.status(200).json({ message: 'Item atualizado com sucesso!', item: updatedItem });
 
     } catch (error) {
-        res.status(500).json({ message: 'Erro ao atualizar o item.', error: error.message });
+        console.error('Erro detalhado ao atualizar item:', error);
+        res.status(500).json({ message: error.message || 'Erro ao atualizar o item.', error: error.message });
     }
 });
+
 
 // Buscar por número de patrimônio
 app.get('/api/inventory/by-patrimonio/:patrimonioId', async (req, res) => {
