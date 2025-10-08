@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO FINAL COM VARIÁVEIS DE AMBIENTE)
+// backend/server.js (VERSÃO COM CORREÇÃO DE JWT E LINK DIRETO)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,7 +26,8 @@ const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mon
 // --- CONFIGURAÇÃO GOOGLE DRIVE ---
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // Formata a chave corretamente
+// A linha abaixo garante que as quebras de linha da variável de ambiente sejam interpretadas corretamente.
+const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -68,7 +69,7 @@ const uploadToDrive = async (fileObject) => {
                 name: fileObject.originalname,
                 parents: [GOOGLE_DRIVE_FOLDER_ID],
             },
-            fields: 'id, webViewLink',
+            fields: 'id, webContentLink', // Pedimos o link de conteúdo direto
         });
 
         await drive.permissions.create({
@@ -79,11 +80,15 @@ const uploadToDrive = async (fileObject) => {
             },
         });
 
-        // Retorna um link direto para visualização da imagem
-        return `https://lh3.googleusercontent.com/d/${data.id}`;
+        // O webContentLink é o link para download/visualização direta do arquivo.
+        return data.webContentLink;
 
     } catch (error) {
+        // Log aprimorado para vermos o erro exato do Google
         console.error('Erro no upload para o Google Drive:', error.message);
+        if (error.errors) {
+            console.error('Detalhes do erro do Google:', error.errors);
+        }
         throw new Error('Falha ao enviar o arquivo para o Google Drive.');
     }
 };
