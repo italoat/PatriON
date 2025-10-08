@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO COM CORREÇÃO DE JWT E LINK DIRETO)
+// backend/server.js (VERSÃO FINAL E SEGURA COM SECRET FILES)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,7 +11,9 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
+const { JWT } = require('google-auth-library');
 const stream = require('stream');
+const fs = require('fs');
 
 const User = require('./models/User');
 const InventoryItem = require('./models/InventoryItem');
@@ -24,18 +26,23 @@ const JWT_SECRET = 'sua-chave-secreta-super-segura-aqui';
 const MONGO_URI = "mongodb+srv://patrion_user:patrion123%40@cluster0.zbjsvk6.mongodb.net/inventarioDB?retryWrites=true&w=majority&appName=Cluster0";
 
 // --- CONFIGURAÇÃO GOOGLE DRIVE ---
-const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
-const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
-// A linha abaixo garante que as quebras de linha da variável de ambiente sejam interpretadas corretamente.
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+// Define o caminho do arquivo de credenciais. A Render o coloca em '/etc/secrets/'.
+const KEYFILEPATH = process.env.NODE_ENV === 'production'
+    ? '/etc/secrets/credentials.json'
+    : path.join(__dirname, 'credentials.json');
 
+// Verifica se o arquivo de credenciais existe antes de continuar
+if (!fs.existsSync(KEYFILEPATH)) {
+    console.error(`ERRO: Arquivo de credenciais não encontrado em ${KEYFILEPATH}.`);
+    console.error('Certifique-se de ter configurado o Secret File na Render ou de ter o arquivo localmente para desenvolvimento.');
+    process.exit(1); // Encerra o processo se não encontrar a chave
+}
+
+const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-const auth = new google.auth.GoogleAuth({
-    credentials: {
-        client_email: GOOGLE_CLIENT_EMAIL,
-        private_key: GOOGLE_PRIVATE_KEY,
-    },
+const auth = new JWT({
+    keyFile: KEYFILEPATH,
     scopes: SCOPES,
 });
 
@@ -69,7 +76,7 @@ const uploadToDrive = async (fileObject) => {
                 name: fileObject.originalname,
                 parents: [GOOGLE_DRIVE_FOLDER_ID],
             },
-            fields: 'id, webContentLink', // Pedimos o link de conteúdo direto
+            fields: 'id, webContentLink',
         });
 
         await drive.permissions.create({
@@ -80,21 +87,17 @@ const uploadToDrive = async (fileObject) => {
             },
         });
 
-        // O webContentLink é o link para download/visualização direta do arquivo.
         return data.webContentLink;
 
     } catch (error) {
-        // Log aprimorado para vermos o erro exato do Google
         console.error('Erro no upload para o Google Drive:', error.message);
-        if (error.errors) {
-            console.error('Detalhes do erro do Google:', error.errors);
-        }
+        if (error.errors) console.error('Detalhes do erro do Google:', error.errors);
         throw new Error('Falha ao enviar o arquivo para o Google Drive.');
     }
 };
 
 
-// --- ROTAS ---
+// --- ROTAS --- (As rotas abaixo permanecem inalteradas)
 
 // Login
 app.post('/api/login', async (req, res) => {
