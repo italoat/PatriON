@@ -1,4 +1,4 @@
-// backend/server.js (VERSÃO FINAL COM SUPORTE A SHARED DRIVES)
+// backend/server.js (VERSÃO CORRIGIDA PARA CONTA PESSOAL GOOGLE)
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -65,12 +65,12 @@ const uploadToDrive = async (fileObject) => {
             media: { mimeType: fileObject.mimetype, body: bufferStream },
             requestBody: { name: fileObject.originalname, parents: [GOOGLE_DRIVE_FOLDER_ID] },
             fields: 'id, webContentLink',
-            supportsAllDrives: true, // <-- ADIÇÃO IMPORTANTE
+            // supportsAllDrives: true, // REMOVIDO
         });
         await drive.permissions.create({
             fileId: data.id,
             requestBody: { role: 'reader', type: 'anyone' },
-            supportsAllDrives: true, // <-- ADIÇÃO IMPORTANTE
+            // supportsAllDrives: true, // REMOVIDO
         });
         return data.webContentLink;
     } catch (error) {
